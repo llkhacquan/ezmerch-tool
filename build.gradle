@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+}
+
+group 'merch-amazon'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+dependencies
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
+    compile group: 'org.bytedeco', name: 'javacv-platform', version: '1.4.2'
+    compile "org.slf4j:slf4j-log4j12:1.7.25"
+    compile "org.slf4j:jcl-over-slf4j:1.7.25"
+    compile "log4j:apache-log4j-extras:1.2.17"
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    compile group: 'com.google.guava', name: 'guava', version: '26.0-jre'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+
+}
+
+task copyCompileAndRuntimeDependencies(type: Sync) {
+    description "Populates directory 'lib'"
+    into "lib"
+    from configurations.runtime
+}
+
+jar.doFirst {
+    manifest {
+        attributes("Manifest-Version": "1.0",
+                "Created-By": "quannk",
+                "Main-Class": "org.openqa.selenium.amazon.merch.auto.AmazonTool",
+                "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
+        )
+    }
+}

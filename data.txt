@@ -1,0 +1,83 @@
+[PRODUCT]
+/home/quannk/Downloads/4500_5400_1.png
+/home/quannk/Downloads/4500_5400_2.png
+STANDARD_T_SHIRT
+AMAZON_COM
+men,women,youth
+1,2,5,8,10
+19.99
+Brand name of the STANDARD_T_SHIRT
+This is the title of STANDARD_T_SHIRT
+Key feature 1
+Key feature 2
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
+
+[PRODUCT]
+/home/quannk/Downloads/4500_5400_1.png
+/home/quannk/Downloads/4500_5400_2.png
+PREMIUM_T_SHIRT
+AMAZON_COM
+men,women
+1,2,5,21,10
+40
+Brand name of the PREMIUM_T_SHIRT
+This is the title of PREMIUM_T_SHIRT
+Key feature 1
+Key feature 2
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
+
+[PRODUCT]
+/home/quannk/Downloads/4500_5400_1.png
+/home/quannk/Downloads/4500_5400_2.png
+LONG_SLEEVE_T_SHIRT
+AMAZON_COM
+men,women
+1,2,5
+50
+Brand name of the LONG_SLEEVE_T_SHIRT
+This is the title of LONG_SLEEVE_T_SHIRT
+Key feature 1
+Key feature 2
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
+
+[PRODUCT]
+/home/quannk/Downloads/4500_5400_1.png
+/home/quannk/Downloads/4500_5400_2.png
+SWEATSHIRT
+AMAZON_COM
+men,women
+1,2,5
+50
+Brand name of the SWEATSHIRT
+This is the title of SWEATSHIRT
+Key feature 1
+Key feature 2
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
+
+[PRODUCT]
+/home/quannk/Downloads/4500_5400_3.png
+/home/quannk/Downloads/4500_5400_4.png
+PULLOVER_HOODIE
+AMAZON_COM
+men
+1,2,5
+80
+Brand name of the shirt
+This is the title of shirt
+Key feature 1
+Key feature 2
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
+
+[PRODUCT]
+/home/quannk/Downloads/485_485.png
+
+POP_SOCKETS
+AMAZON_COM
+
+
+29.99
+Branch name of the first POP_SOCKETS
+This is the title of first POP_SOCKETS
+Key feature 1   fd
+Key feature 2 f d
+This is the descriptions of the product. Min-Length=75;Max-length = 2000. Should not have Enter
