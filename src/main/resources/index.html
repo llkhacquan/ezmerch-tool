@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Merch Amazon data prepare</title>
+</head>
+<body>
+<form>
+	<h2>CHOOSE PRODUCT TYPE:</h2>
+	<label>
+		<select id="id_product_type" name="type" onchange="typeChanged()">
+			<option value="standard">Standard T-Shirt</option>
+			<option value="premium">Premium T-Shirt</option>
+			<option value="long">Long Sleeve T-Shirt</option>
+			<option value="sweatshirt">Sweatshirt</option>
+			<option value="pullover">Pullover Hoodie</option>
+			<option value="pop">PopSockets</option>
+		</select>
+	</label>
+	<h2>CHOOSE MARKET:</h2>
+	<label>
+		<select id="id_market" name="market">
+			<option value="us">Amazon.com</option>
+			<option value="uk">Amazon.co.uk</option>
+			<option value="de">Amazon.de</option>
+		</select>
+	</label>
+	<h2>Image</h2>
+	<div id="div_image_0" style="display: block">
+		<h3>For <i>Everything</i> else</h3>
+		Front <input type="file" id="image_0" name="front_4500_5400" accept="image/png">
+		Back <input type="file" id="image_1" name="back_4500_5400" accept="image/png">
+	</div>
+	<div id="div_image_1" style="display: none">
+		<h3>For <i>Pullover hoodie</i> only</h3>
+		Front <input type="file" id="image_2" name="front_4500_4050" accept="image/png">
+		Back <input type="file" id="image_3" name="back_4500_5400" accept="image/png">
+	</div>
+	<div id="div_image_2" style="display: none">
+		<h3>For <i>Popsockets</i> only</h3>
+		Main image <input type="file" id="image_4" name="front_485_480" accept="image/png">
+	</div>
+</form>
+
+<script>
+    function typeChanged() {
+        var x = document.getElementById("id_product_type").value;
+        console.log("type changed to " + x);
+        if (x === "pop") {
+            document.getElementById("div_image_0").style.display = 'none';
+            document.getElementById("div_image_1").style.display = 'none';
+            document.getElementById("div_image_2").style.display = 'block';
+        } else if (x === "pullover") {
+            document.getElementById("div_image_0").style.display = 'none';
+            document.getElementById("div_image_1").style.display = 'block';
+            document.getElementById("div_image_2").style.display = 'none';
+        } else {
+            document.getElementById("div_image_0").style.display = 'block';
+            document.getElementById("div_image_1").style.display = 'none';
+            document.getElementById("div_image_2").style.display = 'none';
+        }
+
+        if (!(x === "standard")) {
+            document.getElementById("id_market").value = "us";
+            document.getElementById("id_market").disabled = true;
+        } else {
+            document.getElementById("id_market").disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
