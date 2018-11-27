@@ -1,5 +1,9 @@
 package org.openqa.selenium.amazon.merch.auto;
 
+import com.google.common.base.Preconditions;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
+import org.apache.commons.codec.binary.Base32;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -12,20 +16,41 @@ import java.util.List;
 
 public class AmazonTool {
 	private static final Logger LOG = LoggerFactory.getLogger(AmazonTool.class);
+	private static final String DEV_USER_HOME = "quannk";
+	private static final boolean DEV_MODE;
+	private static final File USER_HOME = new File(System.getProperty("user.home"));
+	private static final int[] TIMES = new int[]{30_000, 30 * 60_000, 60 * 60_000, 86400_000, 86400_000 * 7}; // 30s, 30 mins, 1 hour, 1 day, 7 day
+	private static final String KEY;
+
+	static {
+		DEV_MODE = DEV_USER_HOME.equals(USER_HOME.getName());
+		Base32 base32 = new Base32();
+		String key = base32.encodeAsString(String.valueOf(USER_HOME.getName().hashCode()).getBytes());
+		key = key.replace("=", "");
+		while (key.length() < 16) {
+			key = key + key;
+		}
+		KEY = key.substring(0, 16);
+	}
 
 	public static void main(String[] args) throws IOException {
 		String defaultPath = "/home/quannk/.config/google-chrome/amazon";
 		String defaultDataFile = "/home/quannk/merch-amazon/data.txt";
-		if (args.length == 0 && new File(defaultPath).exists() && new File(defaultDataFile).exists()) {
-			args = new String[]{defaultPath, defaultDataFile};
+
+		if (DEV_MODE) {
+			args = new String[]{defaultPath, defaultDataFile, "ngaothe78", "00000000"};
 		}
 
-		if (args.length == 0 || args.length > 2) {
-			System.err.println("Usage: <user-dir> <data-file>");
+		if (args.length != 4) {
+			System.err.println("Usage: <user-dir> <data-file> <password_of_amazon_account> <OTP>");
 			System.exit(1);
 		}
 
 		final List<Product> products = Product.parse(new File(args[1]));
+
+		// check authentication
+		Preconditions.checkState(checkAuthen(args[3]), args[3] + " is not a valid OTP");
+
 		final WebDriver driver = getWebDriver(args[0]);
 		try {
 			for (Product product : products) {
@@ -37,6 +62,24 @@ public class AmazonTool {
 
 	}
 
+	private static boolean checkAuthen(String arg) {
+		int code;
+		try {
+			code = Integer.parseInt(arg);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+
+		for (int time : TIMES) {
+			GoogleAuthenticatorConfig config = new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder().setTimeStepSizeInMillis(time).build();
+			GoogleAuthenticator gAuth = new GoogleAuthenticator(config);
+			int trueCode = gAuth.getTotpPassword(KEY);
+			if (trueCode == code) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private static WebDriver getWebDriver(String userDataDir) {
 		try {
