@@ -49,8 +49,7 @@ public class AmazonTool {
 		final List<Product> products = Product.parse(new File(args[1]));
 
 		// check authentication
-		Preconditions.checkState(checkAuthen(args[3]), args[3] + " is not a valid OTP");
-
+		Preconditions.checkState(DEV_MODE || checkAuthentication(args[3]), args[3] + " is not a valid OTP");
 		final WebDriver driver = getWebDriver(args[0]);
 		try {
 			for (Product product : products) {
@@ -62,7 +61,7 @@ public class AmazonTool {
 
 	}
 
-	private static boolean checkAuthen(String arg) {
+	private static boolean checkAuthentication(String arg) {
 		int code;
 		try {
 			code = Integer.parseInt(arg);
@@ -75,6 +74,7 @@ public class AmazonTool {
 			GoogleAuthenticator gAuth = new GoogleAuthenticator(config);
 			int trueCode = gAuth.getTotpPassword(KEY);
 			if (trueCode == code) {
+				LOG.info(code + " is correct OTP");
 				return true;
 			}
 		}
