@@ -202,12 +202,14 @@ public final class Product {
 				nextLine(reader, i); // this line is ignored
 
 				Product product = new Product(front, back, productType, marketPlace, men, women, youth, colors, price, brand, title, feature1, feature2, description);
+				LOG.info("Load a " + product.getProductType() + " with title=" + title);
 				result.add(product);
 			}
 		} catch (Exception e) {
 			LOG.error("Error at line {}", i, e);
 			throw e;
 		}
+		LOG.info("Load " + result.size() + " products");
 		return result;
 	}
 
@@ -291,12 +293,12 @@ public final class Product {
 		LONG_SLEEVE_T_SHIRT,
 		SWEATSHIRT,
 		PULLOVER_HOODIE,
-		POP_SOCKETS;
+		POP_SOCKETS
 	}
 
 	enum MarketPlace {
 		AMAZON_COM,
 		AMAZON_CO_UK,
-		AMAZON_DE;
+		AMAZON_DE
 	}
 }
