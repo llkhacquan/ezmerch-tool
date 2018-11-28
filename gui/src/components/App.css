@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+/* you can make up upload button and sample style by using stylesheets */
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+
+.color-menu .ant-checkbox {
+  display: none;
+}
+
+.color-item {
+  border: 1px solid silver;
+  box-shadow: inset 0 0 0 2px #fff;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  color: #eee;
+  font-size: 22px;
+  -webkit-text-stroke: 0.5px #a2a6ac;
+}
+
+.color-menu .ant-checkbox-wrapper {
+  padding: 0px;
+  margin-right: 12px;
+}
+
+.color-menu .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin: 0px;
+  margin-right: 12px;
+}
+
+.color-menu .ant-checkbox-wrapper + span,
+.color-menu .ant-checkbox + span {
+  padding: 0px;
+}
