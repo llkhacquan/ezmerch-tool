@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Row, Col, Form, Select, Radio, Upload, Icon, Modal, Checkbox, InputNumber, Input } from 'antd';
+import { Row, Col, Form, Select, Upload, Icon, Modal, Checkbox, Input } from 'antd';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -8,6 +8,9 @@ const CheckboxGroup = Checkbox.Group;
 
 class App extends Component {
   state = {
+    productType: '1',
+    marketplace: '1',
+
     previewVisible: false,
     previewImage: '',
     fileList: [],
@@ -39,9 +42,17 @@ class App extends Component {
     { name: 'Purple', background: '#514689' },
   ];
 
+  handleChangeProductType = (productType) => {
+    this.setState({ productType, marketplace: '1' });
+  };
+
+  handleChangeMarketplace = (marketplace) => {
+    this.setState({ marketplace });
+  };
+
   handleCancel = () => this.setState({ previewVisible: false });
 
-  handlePreview = file => {
+  handlePreview = (file) => {
     this.setState({
       previewImage: file.url || file.thumbUrl,
       previewVisible: true,
@@ -50,15 +61,16 @@ class App extends Component {
 
   handleChange = ({ fileList }) => this.setState({ fileList });
 
-  handleChangeColor = checkedValues => {
+  handleChangeColor = (checkedValues) => {
     if (checkedValues.length <= 5)
       this.setState({
         checkedColors: checkedValues,
       });
   };
 
-  handleChangeListPrice = value => {
-    if (/\d+\.\d+$/.test(value)) {
+  handleChangeListPrice = (event) => {
+    const value = event.target.value;
+    if (/^[0-9]{1,}\.?[0-9]{0,2}$/.test(value) || value === '') {
       this.setState({
         listPrice: value,
       });
@@ -69,12 +81,14 @@ class App extends Component {
     const { previewVisible, previewImage, fileList } = this.state;
     const { checkedColors, listPrice } = this.state;
 
+    const { productType, marketplace } = this.state;
+
     return (
-      <Row className="container">
+      <Row className="merch-form">
         <Col md={8}>
           <Form>
             <FormItem label="CHOOSE PRODUCT TYPE">
-              <Select defaultValue="1">
+              <Select value={productType} onChange={this.handleChangeProductType}>
                 <Option value="1">Standard T-Shirt</Option>
                 <Option value="2">Premium T-Shirt</Option>
                 <Option value="3">Long Sleeve T-Shirt</Option>
@@ -84,36 +98,60 @@ class App extends Component {
               </Select>
             </FormItem>
             <FormItem label="CHOOSE MARKETPLACE">
-              <Select defaultValue="1">
+              <Select value={marketplace} onChange={this.handleChangeMarketplace}>
                 <Option value="1">Amazon.com</Option>
-                <Option value="2">Amazon.co.uk</Option>
-                <Option value="3">Amazon.de</Option>
+                <Option value="2" disabled={productType !== '1'}>
+                  Amazon.co.uk
+                </Option>
+                <Option value="3" disabled={productType !== '1'}>
+                  Amazon.de
+                </Option>
               </Select>
             </FormItem>
-            <FormItem label="PRINT ARTWORK ON THIS SIDE">
-              <Radio.Group defaultValue="1" buttonStyle="solid">
-                <Radio.Button value="1">Front</Radio.Button>
-                <Radio.Button value="2">Back</Radio.Button>
-              </Radio.Group>
-            </FormItem>
             <div className="clearfix">
-              <Upload
-                action="//jsonplaceholder.typicode.com/posts/"
-                listType="picture-card"
-                fileList={fileList}
-                onPreview={this.handlePreview}
-                onChange={this.handleChange}
-              >
-                {fileList.length < 1 && (
-                  <div>
-                    <Icon type="plus" />
-                    <div className="ant-upload-text">Upload</div>
-                  </div>
-                )}
-              </Upload>
-              <Modal footer={null} visible={previewVisible} onCancel={this.handleCancel}>
-                <img alt="" style={{ width: '100%' }} src={previewImage} />
-              </Modal>
+              <FormItem label="Front">
+                <Upload
+                  action="//jsonplaceholder.typicode.com/posts/"
+                  beforeUpload={(file, fileList) => {
+                    console.log(file);
+                    console.log(fileList);
+                    return false;
+                  }}
+                  listType="picture-card"
+                  fileList={fileList}
+                  onPreview={this.handlePreview}
+                  onChange={this.handleChange}>
+                  {fileList.length < 1 && (
+                    <div>
+                      <Icon type="plus" />
+                      <div className="ant-upload-text">Upload</div>
+                    </div>
+                  )}
+                </Upload>
+                <Modal footer={null} visible={previewVisible} onCancel={this.handleCancel}>
+                  <img alt="" style={{ width: '100%' }} src={previewImage} />
+                </Modal>
+              </FormItem>
+            </div>
+            <div className="clearfix">
+              <FormItem label="Back">
+                <Upload
+                  action="//jsonplaceholder.typicode.com/posts/"
+                  listType="picture-card"
+                  fileList={fileList}
+                  onPreview={this.handlePreview}
+                  onChange={this.handleChange}>
+                  {fileList.length < 1 && (
+                    <div>
+                      <Icon type="plus" />
+                      <div className="ant-upload-text">Upload</div>
+                    </div>
+                  )}
+                </Upload>
+                <Modal footer={null} visible={previewVisible} onCancel={this.handleCancel}>
+                  <img alt="" style={{ width: '100%' }} src={previewImage} />
+                </Modal>
+              </FormItem>
             </div>
             <FormItem label="CHOOSE FIT TYPE">
               <CheckboxGroup defaultValue={['1']}>
@@ -138,15 +176,10 @@ class App extends Component {
                 ))}
               </CheckboxGroup>
             </FormItem>
-            <Row>
+            <Row gutter={16}>
               <Col span={12}>
-                <FormItem label="List Price">
-                  <InputNumber
-                    value={listPrice}
-                    formatter={value => `$ ${value}`}
-                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                    onChange={this.handleChangeListPrice}
-                  />
+                <FormItem label="List Price" className="input-number">
+                  <Input addonBefore="$" style={{ width: 100 }} value={listPrice} onChange={this.handleChangeListPrice} />
                 </FormItem>
               </Col>
               <Col span={12}>
@@ -163,6 +196,9 @@ class App extends Component {
             <FormItem label="Key product features (optional)">
               <Input maxLength={256} />
               <Input maxLength={256} />
+            </FormItem>
+            <FormItem label="Product description (optional)">
+              <Input maxLength={2000} />
             </FormItem>
           </Form>
         </Col>

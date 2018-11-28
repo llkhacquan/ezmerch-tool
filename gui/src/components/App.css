@@ -1,6 +1,10 @@
-.container {
+.merch-form {
   display: flex;
   justify-content: center;
+}
+
+.clearfix {
+  display: inline-block;
 }
 
 /* you can make up upload button and sample style by using stylesheets */
@@ -35,14 +39,25 @@
 .color-menu .ant-checkbox-wrapper {
   padding: 0px;
   margin-right: 12px;
+  margin-top: 6px;
 }
 
 .color-menu .ant-checkbox-wrapper + .ant-checkbox-wrapper {
   margin: 0px;
   margin-right: 12px;
+  margin-top: 6px;
 }
 
 .color-menu .ant-checkbox-wrapper + span,
 .color-menu .ant-checkbox + span {
   padding: 0px;
+}
+
+.input-number .ant-input-group-addon {
+  padding-right: 2px;
+}
+
+.input-number .ant-input {
+  padding-left: 2px;
+  border-left: none;
 }
