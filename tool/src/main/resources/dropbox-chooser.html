@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Dropbox chooser example</title>
+	<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="ul7zuos9qi34j0j"></script>
+</head>
+<body>
+
+<div id="div_dropbox">
+	<h2>Dropbox test</h2>
+
+</div>
+<script>
+	window.onload = function (ev) {
+		options = {
+
+			// Required. Called when a user selects an item in the Chooser.
+			success: function (files) {
+				alert(files[0].link + " " + files[0].id);
+			},
+
+			// Optional. Called when the user closes the dialog without selecting a file
+			// and does not include any parameters.
+			cancel: function () {
+
+			},
+
+			// Optional. "preview" (default) is a preview link to the document for sharing,
+			// "direct" is an expiring link to download the contents of the file. For more
+			// information about link types, see Link types below.
+			linkType: "preview", // or "direct"
+
+			// Optional. This is a list of file extensions. If specified, the user will
+			// only be able to select files with these extensions. You may also specify
+			// file types, such as "video" or "images" in the list. For more information,
+			// see File types below. By default, all extensions are allowed.
+			extensions: ['.jpg', '.png'],
+
+			// Optional. A value of false (default) limits selection to files,
+			// while true allows the user to select both folders and files.
+			// You cannot specify `linkType: "direct"` when using `folderselect: true`.
+			folderselect: false, // or true
+		};
+		console.log("On page load");
+		var button = Dropbox.createChooseButton(options);
+		document.getElementById("div_dropbox").appendChild(button);
+	}</script>
+</body>
+</html>
