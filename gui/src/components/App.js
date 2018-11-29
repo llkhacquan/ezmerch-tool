@@ -98,7 +98,7 @@ class App extends Component {
               </Select>
             </FormItem>
             <FormItem label="CHOOSE MARKETPLACE">
-              <Select value={marketplace} onChange={this.handleChangeMarketplace}>
+              <Select value={marketplace} onChange={this.handleChangeMarketplace} disabled={productType !== '1'}>
                 <Option value="1">Amazon.com</Option>
                 <Option value="2" disabled={productType !== '1'}>
                   Amazon.co.uk
