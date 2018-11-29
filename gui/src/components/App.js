@@ -85,29 +85,36 @@ class App extends Component {
 
     return (
       <Row className="merch-form">
-        <Col md={8}>
+        <Col md={20}>
           <Form>
-            <FormItem label="CHOOSE PRODUCT TYPE">
-              <Select value={productType} onChange={this.handleChangeProductType}>
-                <Option value="1">Standard T-Shirt</Option>
-                <Option value="2">Premium T-Shirt</Option>
-                <Option value="3">Long Sleeve T-Shirt</Option>
-                <Option value="4">Sweatshirt</Option>
-                <Option value="5">Pullover Hoodie</Option>
-                <Option value="6">PopSockets</Option>
-              </Select>
-            </FormItem>
-            <FormItem label="CHOOSE MARKETPLACE">
-              <Select value={marketplace} onChange={this.handleChangeMarketplace} disabled={productType !== '1'}>
-                <Option value="1">Amazon.com</Option>
-                <Option value="2" disabled={productType !== '1'}>
-                  Amazon.co.uk
+            <Col md={5}>
+              <FormItem label="CHOOSE PRODUCT TYPE">
+                <Select value={productType} onChange={this.handleChangeProductType}>
+                  <Option value="1">Standard T-Shirt</Option>
+                  <Option value="2">Premium T-Shirt</Option>
+                  <Option value="3">Long Sleeve T-Shirt</Option>
+                  <Option value="4">Sweatshirt</Option>
+                  <Option value="5">Pullover Hoodie</Option>
+                  <Option value="6">PopSockets</Option>
+                </Select>
+
+              </FormItem>
+            </Col>
+            <Col md={1}></Col>
+            <Col md={5}>
+              <FormItem label="CHOOSE MARKETPLACE">
+                <Select value={marketplace} onChange={this.handleChangeMarketplace} disabled={productType !== '1'}>
+                  <Option value="1">Amazon.com</Option>
+                  <Option value="2" disabled={productType !== '1'}>
+                    Amazon.co.uk
                 </Option>
-                <Option value="3" disabled={productType !== '1'}>
-                  Amazon.de
+                  <Option value="3" disabled={productType !== '1'}>
+                    Amazon.de
                 </Option>
-              </Select>
-            </FormItem>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col md={1}></Col>
             <div className="clearfix">
               <FormItem label="Front">
                 <Upload
@@ -154,7 +161,7 @@ class App extends Component {
               </FormItem>
             </div>
             <FormItem label="CHOOSE FIT TYPE">
-              <CheckboxGroup defaultValue={['1']}>
+              <CheckboxGroup defaultValue={['1', '3']} disabled={productType === '6'}>
                 <Checkbox value="1">Men</Checkbox>
                 <Checkbox value="2">Women</Checkbox>
                 <Checkbox value="3">Youth</Checkbox>
