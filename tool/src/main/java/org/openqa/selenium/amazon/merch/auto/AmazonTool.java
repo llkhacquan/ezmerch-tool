@@ -46,7 +46,7 @@ public class AmazonTool {
 			System.exit(1);
 		}
 
-		final List<Product> products = Product.parse(new File(args[1]));
+		final List<Product> products = Product.parseFromTxt(new File(args[1]));
 
 		// check authentication
 		Preconditions.checkState(DEV_MODE || checkAuthentication(args[3]), args[3] + " is not a valid OTP");

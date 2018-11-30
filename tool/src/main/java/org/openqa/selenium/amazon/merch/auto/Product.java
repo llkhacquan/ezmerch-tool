@@ -1,6 +1,7 @@
 package org.openqa.selenium.amazon.merch.auto;
 
 import com.google.common.base.Preconditions;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,7 +93,7 @@ public final class Product {
 		this.productDescription = productDescription;
 	}
 
-	public static List<Product> parse(File myfile) throws IOException {
+	public static List<Product> parseFromTxt(File myfile) throws IOException {
 		List<Product> result = new ArrayList<>();
 		AtomicInteger i = new AtomicInteger();
 		try (BufferedReader reader = new BufferedReader(new FileReader(myfile))) {
@@ -213,6 +215,11 @@ public final class Product {
 		return result;
 	}
 
+	public static Product parseFromJson(String json) {
+		JSONObject obj = new JSONObject(json);
+		return null;
+	}
+
 	private static void checkImageDimension(BufferedImage image, ProductType productType, int w, int h) {
 		if (image != null) {
 			Preconditions.checkNotNull(image, "Image must be provided for " + productType);
@@ -222,7 +229,9 @@ public final class Product {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Product.parse(new File("data.txt"));
+		String jsonString = new String(Files.readAllBytes(new File("form.json").toPath()));
+		System.out.println(jsonString);
+		Product.parseFromJson(jsonString);
 	}
 
 	private static String nextLine(BufferedReader reader, AtomicInteger i) throws IOException {
