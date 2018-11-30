@@ -1,10 +1,16 @@
 .merch-form {
   display: flex;
   justify-content: center;
+  padding: 50px;
 }
 
 .clearfix {
-  display: inline-block;
+  display: inline-flex;
+  width: 100%;
+}
+
+.clearfix .ant-form-item {
+  flex: 1;
 }
 
 /* you can make up upload button and sample style by using stylesheets */
@@ -53,11 +59,33 @@
   padding: 0px;
 }
 
-.input-number .ant-input-group-addon {
-  padding-right: 2px;
+.input-number .ant-input-affix-wrapper .ant-input-prefix {
+  padding-bottom: 1px;
+  font-weight: 600;
 }
 
-.input-number .ant-input {
-  padding-left: 2px;
-  border-left: none;
+.input-number .ant-input-affix-wrapper .ant-input:not(:first-child) {
+  padding-left: 22px;
+}
+
+.input-readonly .ant-input-group-addon {
+  font-weight: unset;
+}
+
+.input-readonly .ant-input-group-addon:first-child {
+  width: 100%;
+  text-align: unset;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.input-readonly .ant-input {
+  width: 0px;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+}
+
+.input-readonly .ant-input-group-addon:last-child {
+  display: none;
 }
