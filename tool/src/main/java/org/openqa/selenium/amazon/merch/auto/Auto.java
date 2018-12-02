@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.openqa.selenium.amazon.merch.auto.AmazonPageByTitle.CREATE;
+import static org.openqa.selenium.amazon.merch.auto.Product.Color.*;
 
 public final class Auto {
 	private static final Logger LOG = LoggerFactory.getLogger(Auto.class);
@@ -149,24 +150,23 @@ public final class Auto {
 				}
 			}
 			if (product.getProductType() != Product.ProductType.POP_SOCKETS) {
-				final String[] colors = product.getProductType() == Product.ProductType.PULLOVER_HOODIE || product.getProductType() == Product.ProductType.SWEATSHIRT || product.getProductType() == Product.ProductType.LONG_SLEEVE_T_SHIRT ?
-						Product.COLORS2.split("\n") : Product.COLORS.split("\n");
-				for (String color : colors) {
+				final Product.Color[] colors = product.getProductType() == Product.ProductType.PULLOVER_HOODIE || product.getProductType() == Product.ProductType.SWEATSHIRT || product.getProductType() == Product.ProductType.LONG_SLEEVE_T_SHIRT ?
+						new Product.Color[]{heather_grey, dark_heather, black, navy, royal} : Product.Color.values();
+				for (Product.Color color : colors) {
 					// clear all check
-					WebElement element = driver.findElement(By.id(color));
+					WebElement element = driver.findElement(By.id(color.getId()));
 					if (element.getText().length() > 0) {
 						actions.moveToElement(element).click().perform();
 						Thread.sleep(500);
 					}
 				}
 				LOG.info("Cleared all color check");
-				for (int i : product.getColor()) {
-					String color = colors[i - 1];
-					WebElement element = driver.findElement(By.id(color));
+				for (Product.Color i : product.getColor()) {
+					WebElement element = driver.findElement(By.id(i.getId()));
 					if (element.getText().length() == 0) {
 						actions.moveToElement(element).click().perform();
 						Thread.sleep(500);
-						LOG.info("Check color {}", color);
+						LOG.info("Check color {}", i);
 					}
 				}
 			}

@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AmazonTool {
 	private static final Logger LOG = LoggerFactory.getLogger(AmazonTool.class);
@@ -23,7 +25,9 @@ public class AmazonTool {
 	private static final String KEY;
 
 	static {
-		DEV_MODE = DEV_USER_HOME.equals(USER_HOME.getName());
+		// TODO dev mode is always true for now. need to be turn off later
+		// DEV_MODE = DEV_USER_HOME.equals(USER_HOME.getName());
+		DEV_MODE = true;
 		Base32 base32 = new Base32();
 		String key = base32.encodeAsString(String.valueOf(USER_HOME.getName().hashCode()).getBytes());
 		key = key.replace("=", "");
@@ -35,10 +39,10 @@ public class AmazonTool {
 
 	public static void main(String[] args) throws IOException {
 		String defaultPath = "/home/quannk/.config/google-chrome/amazon";
-		String defaultDataFile = "/home/quannk/merch-amazon/data.txt";
+		String defaultDataFolder = "/home/quannk/merch-amazon/tool/";
 
 		if (DEV_MODE) {
-			args = new String[]{defaultPath, defaultDataFile, "ngaothe78", "00000000"};
+			args = new String[]{defaultPath, defaultDataFolder, "ngaothe78", "00000000"};
 		}
 
 		if (args.length != 4) {
@@ -46,7 +50,13 @@ public class AmazonTool {
 			System.exit(1);
 		}
 
-		final List<Product> products = Product.parseFromTxt(new File(args[1]));
+		final List<Product> products = new ArrayList<>();
+		for (File file : Objects.requireNonNull(new File(args[1]).listFiles((dir, name) -> name.endsWith(".json")))) {
+			products.add(Product.parseFromJson(file));
+		}
+		if (products.size() == 0) {
+			return;
+		}
 
 		// check authentication
 		Preconditions.checkState(DEV_MODE || checkAuthentication(args[3]), args[3] + " is not a valid OTP");

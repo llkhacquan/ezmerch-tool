@@ -1,6 +1,7 @@
 package org.openqa.selenium.amazon.merch.auto;
 
 import com.google.common.base.Preconditions;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,32 +19,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Product {
-	public static final String COLORS = "gear-checkbox-dark_heather\n" +
-			"gear-checkbox-heather_grey\n" +
-			"gear-checkbox-heather_blue\n" +
-			"gear-checkbox-black\n" +
-			"gear-checkbox-navy\n" +
-			"gear-checkbox-silver\n" +
-			"gear-checkbox-royal\n" +
-			"gear-checkbox-brown\n" +
-			"gear-checkbox-slate\n" +
-			"gear-checkbox-red\n" +
-			"gear-checkbox-asphalt\n" +
-			"gear-checkbox-grass\n" +
-			"gear-checkbox-olive\n" +
-			"gear-checkbox-kelly_green\n" +
-			"gear-checkbox-baby_blue\n" +
-			"gear-checkbox-white\n" +
-			"gear-checkbox-lemon\n" +
-			"gear-checkbox-cranberry\n" +
-			"gear-checkbox-pink\n" +
-			"gear-checkbox-orange\n" +
-			"gear-checkbox-purple";
-	public static final String COLORS2 = "gear-checkbox-heather_grey\n" +
-			"gear-checkbox-dark_heather\n" +
-			"gear-checkbox-black\n" +
-			"gear-checkbox-navy\n" +
-			"gear-checkbox-royal";
 	private static final Logger LOG = LoggerFactory.getLogger(Product.class);
 	// first
 	private final String pathToFront;
@@ -54,7 +29,7 @@ public final class Product {
 	private final boolean fitTypeMen;
 	private final boolean fitTypeWomen;
 	private final boolean fitTypeYouth;
-	private final int[] color;
+	private final Color[] color;
 	private final double listPrice;
 	// third page
 	private final String brandName;
@@ -63,7 +38,13 @@ public final class Product {
 	private final String keyFeature2;
 	private final String productDescription;
 
-	public Product(String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, int[] color, double listPrice, String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
+	public Product(String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, Color[] color, double listPrice,
+	               String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
+		Preconditions.checkNotNull(brandName);
+		Preconditions.checkNotNull(titleOfProduct);
+		Preconditions.checkNotNull(keyFeature1);
+		Preconditions.checkNotNull(keyFeature2);
+		Preconditions.checkNotNull(productDescription);
 		Preconditions.checkArgument(pathToFront != null || pathToBack != null, "You must provide front or back");
 		this.pathToFront = pathToFront;
 		this.pathToBack = pathToBack;
@@ -85,11 +66,11 @@ public final class Product {
 		Preconditions.checkNotNull(titleOfProduct);
 		Preconditions.checkArgument(titleOfProduct.length() <= 60);
 		this.titleOfProduct = titleOfProduct;
-		Preconditions.checkArgument(keyFeature1 == null || keyFeature1.length() <= 256);
+		Preconditions.checkArgument(keyFeature1.length() == 0 || keyFeature1.length() <= 256);
 		this.keyFeature1 = keyFeature1;
-		Preconditions.checkArgument(keyFeature2 == null || keyFeature2.length() <= 256);
+		Preconditions.checkArgument(keyFeature2.length() == 0 || keyFeature2.length() <= 256);
 		this.keyFeature2 = keyFeature2;
-		Preconditions.checkArgument(productDescription == null || productDescription.length() >= 75 && productDescription.length() <= 2000);
+		Preconditions.checkArgument(productDescription.length() == 0 || productDescription.length() >= 75 && productDescription.length() <= 2000);
 		this.productDescription = productDescription;
 	}
 
@@ -180,18 +161,17 @@ public final class Product {
 				line = nextLine(reader, i);
 				Preconditions.checkNotNull(line, "Line " + i + " must exist");
 				line = line.replaceAll("\\s", "");
-				int[] colors;
+				Color[] colors;
 				if (productType != ProductType.POP_SOCKETS) {
-					colors = Arrays.stream(line.split(",")).mapToInt(Integer::parseInt).toArray();
-					for (int color : colors) {
-						if (productType == ProductType.STANDARD_T_SHIRT || productType == ProductType.PREMIUM_T_SHIRT) {
-							Preconditions.checkArgument(color > 0 && color <= 21, "Color of " + productType + " must be between 1 and 21. Actual:" + color);
-						} else {
-							Preconditions.checkArgument(color > 0 && color <= 5, "Color of " + productType + " must be between 1 and 5. Actual:" + color);
+					colors = Arrays.stream(line.split(",")).map(s -> {
+						try {
+							return Color.valueOf(s.replaceAll(" ", "_"));
+						} catch (IllegalArgumentException e) {
+							throw new RuntimeException(s + " is not a valid color. List of valid colors: " + Arrays.toString(Color.values()));
 						}
-					}
+					}).toArray(Color[]::new);
 				} else {
-					colors = new int[0];
+					colors = new Color[0];
 				}
 				line = nextLine(reader, i);
 				Preconditions.checkNotNull(line, "Line " + i + " must exist");
@@ -215,9 +195,60 @@ public final class Product {
 		return result;
 	}
 
-	public static Product parseFromJson(String json) {
+	public static Product parseFromJson(File file) throws IOException {
+		String json = new String(Files.readAllBytes(file.toPath()));
 		JSONObject obj = new JSONObject(json);
-		return null;
+		System.out.println(obj);
+		obj.keys().forEachRemaining(s -> {
+			System.out.println(s + " " + obj.get(s));
+		});
+		ProductType productType = ProductType.values()[obj.getInt("productType") - 1];
+		MarketPlace marketPlace = MarketPlace.valueOf(obj.getString("marketplace").replaceAll("\\.", "_").toUpperCase());
+		double listPrice = obj.getDouble("listPrice");
+		String front = file.getParentFile().toPath().resolve(obj.getString("front")).toString();
+		String back = file.getParentFile().toPath().resolve(obj.getString("back")).toString();
+		boolean[] fitTypeResult = new boolean[3];
+		{
+			final JSONArray fitType = obj.getJSONArray("fitType");
+			fitType.forEach(o -> {
+				if ("men".equalsIgnoreCase(o.toString())) {
+					fitTypeResult[0] = true;
+				} else if ("women".equalsIgnoreCase(o.toString())) {
+					fitTypeResult[1] = true;
+				} else if ("young".equalsIgnoreCase(o.toString())) {
+					fitTypeResult[2] = true;
+				}
+			});
+		}
+		List<Color> colorsList = new ArrayList<>();
+		{
+			final JSONArray checkedColors = obj.getJSONArray("checkedColors");
+			checkedColors.forEach(o -> {
+				colorsList.add(Color.valueOf(o.toString().toLowerCase().replaceAll(" ", "_")));
+			});
+		}
+		String[] description = obj.getString("description").split("\n");
+		String brand = "";
+		String title = "";
+		String key1 = "";
+		String key2 = "";
+		String des = "";
+		if (description.length >= 1) {
+			brand = description[0];
+		}
+		if (description.length >= 2) {
+			title = description[1];
+		}
+		if (description.length >= 3) {
+			key1 = description[2].trim();
+		}
+		if (description.length >= 4) {
+			key2 = description[3].trim();
+		}
+		if (description.length >= 5) {
+			des = description[4].trim();
+		}
+		return new Product(front, back, productType, marketPlace, fitTypeResult[0], fitTypeResult[1], fitTypeResult[2], colorsList.toArray(new Color[0]), listPrice, brand, title, key1, key2, des);
 	}
 
 	private static void checkImageDimension(BufferedImage image, ProductType productType, int w, int h) {
@@ -229,9 +260,7 @@ public final class Product {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String jsonString = new String(Files.readAllBytes(new File("form.json").toPath()));
-		System.out.println(jsonString);
-		Product.parseFromJson(jsonString);
+		Product.parseFromJson(new File("form.json"));
 	}
 
 	private static String nextLine(BufferedReader reader, AtomicInteger i) throws IOException {
@@ -268,7 +297,7 @@ public final class Product {
 		return fitTypeYouth;
 	}
 
-	public int[] getColor() {
+	public Color[] getColor() {
 		return color;
 	}
 
@@ -294,6 +323,34 @@ public final class Product {
 
 	public String getProductDescription() {
 		return productDescription;
+	}
+
+	enum Color {
+		dark_heather,
+		heather_grey,
+		heather_blue,
+		black,
+		navy,
+		silver,
+		royal,
+		brown,
+		slate,
+		red,
+		asphalt,
+		grass,
+		olive,
+		kelly_green,
+		baby_blue,
+		white,
+		lemon,
+		cranberry,
+		pink,
+		orange,
+		purple;
+
+		String getId() {
+			return "gear-checkbox-" + this.toString();
+		}
 	}
 
 	enum ProductType {
