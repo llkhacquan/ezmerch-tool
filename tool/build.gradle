@@ -28,6 +28,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.warrenstrange/googleauth
     compile group: 'com.warrenstrange', name: 'googleauth', version: '1.2.0'
     compile group: 'org.json', name: 'json', version: '20180813'
+    // https://mvnrepository.com/artifact/com.intellij/forms_rt
+    compile group: 'com.intellij', name: 'forms_rt', version: '7.0.3'
 }
 
 task copyCompileAndRuntimeDependencies(type: Sync) {
@@ -40,7 +42,7 @@ jar.doFirst {
     manifest {
         attributes("Manifest-Version": "1.0",
                 "Created-By": "quannk",
-                "Main-Class": "org.openqa.selenium.amazon.merch.auto.AmazonTool",
+                "Main-Class": "org.openqa.selenium.amazon.merch.auto.MerchForm",
                 "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
         )
     }
