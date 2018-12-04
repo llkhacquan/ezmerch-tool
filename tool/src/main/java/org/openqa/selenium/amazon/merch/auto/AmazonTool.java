@@ -7,6 +7,9 @@ import org.apache.commons.codec.binary.Base32;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +21,11 @@ import java.util.Objects;
 
 public class AmazonTool {
 	private static final Logger LOG = LoggerFactory.getLogger(AmazonTool.class);
-	private static final String DEV_USER_HOME = "quannk";
-	private static final boolean DEV_MODE;
-	private static final File USER_HOME = new File(System.getProperty("user.home"));
-	private static final int[] TIMES = new int[]{30_000, 30 * 60_000, 60 * 60_000, 86400_000, 86400_000 * 7}; // 30s, 30 mins, 1 hour, 1 day, 7 day
-	private static final String KEY;
+	public static final String DEV_USER_HOME = "quannk";
+	public static final boolean DEV_MODE;
+	public static final File USER_HOME = new File(System.getProperty("user.home"));
+	public static final int[] TIMES = new int[]{30_000, 30 * 60_000, 60 * 60_000, 86400_000, 86400_000 * 7}; // 30s, 30 mins, 1 hour, 1 day, 7 day
+	public static final String KEY;
 
 	static {
 		// TODO dev mode is always true for now. need to be turn off later
@@ -91,7 +94,7 @@ public class AmazonTool {
 		return false;
 	}
 
-	private static WebDriver getWebDriver(String userDataDir) {
+	public static WebDriver getWebDriver(String userDataDir) {
 		try {
 			if (new File(userDataDir).exists()) {
 				LOG.info("Use an existing user-directory:{}", userDataDir);
@@ -108,6 +111,24 @@ public class AmazonTool {
 			}
 			System.exit(1);
 			return null;
+		}
+	}
+
+	static void waitForDriverToClose(WebDriver driver) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, 2000);
+			wait.until(ExpectedConditions.not((ExpectedCondition<Boolean>) driver1 -> {
+				try {
+					driver1.getTitle();
+					return true;
+				} catch (Exception ex) {
+					LOG.error("Couldn't Connect Driver / Driver Closed");
+					return false;
+				}
+			}));
+		} catch (org.openqa.selenium.TimeoutException ex) {
+			LOG.info("Timeout Trying Again");
+			waitForDriverToClose(driver);
 		}
 	}
 
