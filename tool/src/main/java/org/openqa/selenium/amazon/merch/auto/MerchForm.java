@@ -9,6 +9,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.openqa.selenium.amazon.merch.auto.AmazonTool.waitForDriverToClose;
 
@@ -25,12 +27,14 @@ public class MerchForm {
 	private JButton checkButton;
 	private JButton submitButton;
 	private DefaultListModel<File> selectedDataFiles = new DefaultListModel<>();
+	private List<Product> products = null;
 
 	public MerchForm() {
 		initiateButton.addActionListener(event -> {
 			int i = JOptionPane.showConfirmDialog(panelMain, "Chrome will be opened. Please log-in to your merch account and then quit Chrome");
 			if (i == JOptionPane.OK_OPTION) {
 				WebDriver webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
+				webDriver.get("https://merch.amazon.com/landing");
 				waitForDriverToClose(webDriver);
 			}
 		});
@@ -81,17 +85,42 @@ public class MerchForm {
 		});
 		checkButton.addActionListener(event -> {
 			int n = selectedDataFiles.getSize();
+			products = new ArrayList<>();
 			for (int i = 0; i < n; i++) {
 				try {
+					productList.setSelectedIndex(i);
 					Product product = Product.parseFromJson(selectedDataFiles.get(i));
+					products.add(product);
 				} catch (IOException e) {
-					// TODO:
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(panelMain, "Error when parsing file " + selectedDataFiles.get(i) + ". Error:\n" + e.toString());
+					LOG.error("Error when parsing file {}", selectedDataFiles.get(i), e);
+					products = null;
+					break;
 				}
+			}
+			if (products != null) {
+				JOptionPane.showMessageDialog(panelMain, "Loaded " + products.size() + " products");
 			}
 		});
 		submitButton.addActionListener(actionEvent -> {
-
+			if (products == null) {
+				JOptionPane.showMessageDialog(panelMain, "Please \"check\" the data files first");
+			} else if (products.size() == 0) {
+				JOptionPane.showMessageDialog(panelMain, "There is no product to summit");
+			} else {
+				int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting {} " + products.size() + " product. Please confirm to process...");
+				if (confirmResult == JOptionPane.OK_OPTION) {
+					final WebDriver webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
+					try {
+						for (Product product : products) {
+							Auto.createNewProduct(webDriver, product, new String(passwordField1.getPassword()));
+						}
+					} finally {
+						webDriver.quit();
+					}
+					JOptionPane.showMessageDialog(panelMain, "Done!");
+				}
+			}
 		});
 		chromeDirTextField.setText(AmazonTool.USER_HOME.toPath().resolve("chrome-amazon").toString());
 	}
