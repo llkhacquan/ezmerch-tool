@@ -8,3 +8,5 @@ lib/
 build/
 
 out/
+
+*.ini
