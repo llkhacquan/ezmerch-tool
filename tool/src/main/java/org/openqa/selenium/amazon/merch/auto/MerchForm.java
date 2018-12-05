@@ -20,15 +20,14 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.openqa.selenium.amazon.merch.auto.AmazonTool.hasQuit;
-import static org.openqa.selenium.amazon.merch.auto.AmazonTool.waitForDriverToClose;
+import static org.openqa.selenium.amazon.merch.auto.AmazonTool.*;
 
 public class MerchForm {
 	public static final String INI_CHROME_DIR = "chrome-dir";
 	public static final String INI_DATA_DIR = "data-dir";
 	public static final String INI_PW = "pw";
 	private static final Logger LOG = LoggerFactory.getLogger(MerchForm.class);
-	private static final File iniFile = new File(".app.ini");
+	private static final File iniFile = new File(USER_HOME, ".ezmerch.ini");
 	private final DefaultListModel<File> selectedDataFiles = new DefaultListModel<>();
 	private final JFileChooser dataChooser = new JFileChooser();
 	private JPanel panelMain;
@@ -155,7 +154,7 @@ public class MerchForm {
 				selectedDataFiles.removeElement(file);
 			}
 		});
-		chromeDirTextField.setText(AmazonTool.USER_HOME.toPath().resolve("chrome-amazon").toString());
+		chromeDirTextField.setText(USER_HOME.toPath().resolve("chrome-amazon").toString());
 	}
 
 	public static void main(String[] args) throws IOException {
