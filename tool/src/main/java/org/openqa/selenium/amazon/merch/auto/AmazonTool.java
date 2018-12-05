@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class AmazonTool {
-	private static final Logger LOG = LoggerFactory.getLogger(AmazonTool.class);
 	public static final String DEV_USER_HOME = "quannk";
 	public static final boolean DEV_MODE;
 	public static final File USER_HOME = new File(System.getProperty("user.home"));
 	public static final int[] TIMES = new int[]{30_000, 30 * 60_000, 60 * 60_000, 86400_000, 86400_000 * 7}; // 30s, 30 mins, 1 hour, 1 day, 7 day
 	public static final String KEY;
+	private static final Logger LOG = LoggerFactory.getLogger(AmazonTool.class);
 
 	static {
 		// TODO dev mode is always true for now. need to be turn off later
@@ -68,6 +68,8 @@ public class AmazonTool {
 			for (Product product : products) {
 				Auto.createNewProduct(driver, product, "ngaothe78");
 			}
+		} catch (InterruptedException e) {
+			LOG.error("Exception when submitting", e);
 		} finally {
 			driver.quit();
 		}
@@ -111,6 +113,15 @@ public class AmazonTool {
 			}
 			System.exit(1);
 			return null;
+		}
+	}
+
+	static boolean hasQuit(WebDriver driver) {
+		try {
+			driver.getTitle();
+			return false;
+		} catch (Exception e) {
+			return true;
 		}
 	}
 
