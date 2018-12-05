@@ -158,6 +158,11 @@ public class MerchForm {
 	}
 
 	public static void main(String[] args) throws IOException {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			LOG.error("Error when set look and feel");
+		}
 		MerchForm form = new MerchForm();
 		if (iniFile.exists() && iniFile.isFile()) {
 			List<String> strings = Files.readAllLines(iniFile.toPath());
