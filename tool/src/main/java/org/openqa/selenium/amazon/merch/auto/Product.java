@@ -6,17 +6,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Product {
 	private static final Logger LOG = LoggerFactory.getLogger(Product.class);
@@ -74,127 +69,6 @@ public final class Product {
 		this.productDescription = productDescription;
 	}
 
-	public static List<Product> parseFromTxt(File myfile) throws IOException {
-		List<Product> result = new ArrayList<>();
-		AtomicInteger i = new AtomicInteger();
-		try (BufferedReader reader = new BufferedReader(new FileReader(myfile))) {
-			String line;
-			while ((line = nextLine(reader, i)) != null) {
-				Preconditions.checkState(line.startsWith("["), "Line " + i + " must start with '[PRODUCT]'");
-				// front image
-				String front = nextLine(reader, i);
-				Preconditions.checkNotNull(front, "Line " + i + " must exist");
-				BufferedImage frontImage = null;
-				if (front.length() > 0) {
-					File file = new File(front);
-					Preconditions.checkState(front.endsWith(".png"), "Line " + i + ":" + file + " must be PNG file");
-					Preconditions.checkState(file.exists(), "Line " + i + ":" + file + " must exist");
-					frontImage = ImageIO.read(file);
-				}
-				String back = nextLine(reader, i);
-				Preconditions.checkNotNull(back, "Line " + i + " must exist");
-				BufferedImage backImage = null;
-				if (back.length() > 0) {
-					File file = new File(back);
-					Preconditions.checkState(back.endsWith(".png"), file + " must be PNG file");
-					Preconditions.checkState(file.exists(), "Line " + i + ":" + file + " must exist");
-					backImage = ImageIO.read(file);
-				}
-				Preconditions.checkArgument(frontImage != null || backImage != null, "An image must be provided");
-				line = nextLine(reader, i);
-				Preconditions.checkNotNull(line, "Line " + i + " must exist");
-				final ProductType productType;
-				try {
-					productType = ProductType.valueOf(line.toUpperCase());
-				} catch (IllegalArgumentException e) {
-					StringBuilder sb = new StringBuilder("[");
-					for (ProductType value : ProductType.values()) {
-						sb.append(value).append(',');
-					}
-					sb.setCharAt(sb.length() - 1, ']');
-					throw new RuntimeException("Line " + i + ":" + line + " must be in " + sb.toString(), e);
-				}
-				switch (productType) {
-					case POP_SOCKETS:
-						Preconditions.checkNotNull(frontImage, "Front image must be provided for " + productType);
-						checkImageDimension(frontImage, productType, 485, 485);
-						break;
-					case LONG_SLEEVE_T_SHIRT:
-					case SWEATSHIRT:
-					case PREMIUM_T_SHIRT:
-					case STANDARD_T_SHIRT:
-						checkImageDimension(frontImage, productType, 4500, 5400);
-						checkImageDimension(backImage, productType, 4500, 5400);
-						break;
-					case PULLOVER_HOODIE:
-						checkImageDimension(frontImage, productType, 4500, 4050);
-						checkImageDimension(backImage, productType, 4500, 5400);
-						break;
-
-				}
-				line = nextLine(reader, i);
-				Preconditions.checkNotNull(line, "Line " + i + " must exist");
-				final MarketPlace marketPlace;
-				try {
-					marketPlace = MarketPlace.valueOf(line.toUpperCase());
-				} catch (IllegalArgumentException e) {
-					StringBuilder sb = new StringBuilder("[");
-					for (MarketPlace value : MarketPlace.values()) {
-						sb.append(value).append(',');
-					}
-					sb.setCharAt(sb.length() - 1, ']');
-					throw new RuntimeException("Line " + i + ":" + line + " must be in " + sb.toString());
-				}
-				line = nextLine(reader, i);
-				Preconditions.checkNotNull(line, "Line " + i + " must exist");
-				line = line.toLowerCase();
-				boolean men = false, women = false, youth = false;
-				for (String s : line.split(",")) {
-					if (s.equals("men")) {
-						men = true;
-					} else if (s.equals("women")) {
-						women = true;
-					} else if (s.equals("youth")) {
-						youth = true;
-					}
-				}
-				line = nextLine(reader, i);
-				Preconditions.checkNotNull(line, "Line " + i + " must exist");
-				line = line.replaceAll("\\s", "");
-				Color[] colors;
-				if (productType != ProductType.POP_SOCKETS) {
-					colors = Arrays.stream(line.split(",")).map(s -> {
-						try {
-							return Color.valueOf(s.replaceAll(" ", "_"));
-						} catch (IllegalArgumentException e) {
-							throw new RuntimeException(s + " is not a valid color. List of valid colors: " + Arrays.toString(Color.values()));
-						}
-					}).toArray(Color[]::new);
-				} else {
-					colors = new Color[0];
-				}
-				line = nextLine(reader, i);
-				Preconditions.checkNotNull(line, "Line " + i + " must exist");
-				double price = Double.parseDouble(line);
-				String brand = nextLine(reader, i);
-				String title = nextLine(reader, i);
-				String feature1 = nextLine(reader, i);
-				String feature2 = nextLine(reader, i);
-				String description = nextLine(reader, i);
-				nextLine(reader, i); // this line is ignored
-
-				Product product = new Product(front, back, productType, marketPlace, men, women, youth, colors, price, brand, title, feature1, feature2, description);
-				LOG.info("Load a " + product.getProductType() + " with title=" + title);
-				result.add(product);
-			}
-		} catch (Exception e) {
-			LOG.error("Error at line {}", i, e);
-			throw e;
-		}
-		LOG.info("Load " + result.size() + " products");
-		return result;
-	}
-
 	public static Product parseFromJson(File file) throws IOException {
 		String json = new String(Files.readAllBytes(file.toPath()));
 		JSONObject obj = new JSONObject(json);
@@ -206,7 +80,9 @@ public final class Product {
 		MarketPlace marketPlace = MarketPlace.valueOf(obj.getString("marketplace").replaceAll("\\.", "_").toUpperCase());
 		double listPrice = obj.getDouble("listPrice");
 		String front = file.getParentFile().toPath().resolve(obj.getString("front")).toString();
+		Preconditions.checkState(new File(front).exists(), front + " must exist");
 		String back = file.getParentFile().toPath().resolve(obj.getString("back")).toString();
+		Preconditions.checkState(new File(back).exists(), back + " must exist");
 		boolean[] fitTypeResult = new boolean[3];
 		{
 			final JSONArray fitType = obj.getJSONArray("fitType");
@@ -215,8 +91,10 @@ public final class Product {
 					fitTypeResult[0] = true;
 				} else if ("women".equalsIgnoreCase(o.toString())) {
 					fitTypeResult[1] = true;
-				} else if ("young".equalsIgnoreCase(o.toString())) {
+				} else if ("youth".equalsIgnoreCase(o.toString())) {
 					fitTypeResult[2] = true;
+				} else {
+					throw new RuntimeException(o.toString() + " is not a valid fit type (men, women, youth)");
 				}
 			});
 		}
@@ -261,12 +139,6 @@ public final class Product {
 
 	public static void main(String[] args) throws IOException {
 		Product.parseFromJson(new File("form.json"));
-	}
-
-	private static String nextLine(BufferedReader reader, AtomicInteger i) throws IOException {
-		i.incrementAndGet();
-		String line = reader.readLine();
-		return line == null ? null : line.trim();
 	}
 
 	public String getPathToFront() {
