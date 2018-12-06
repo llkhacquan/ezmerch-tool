@@ -2,7 +2,10 @@ package org.openqa.selenium.amazon.merch.auto;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +23,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.openqa.selenium.amazon.merch.auto.AmazonTool.*;
+import static org.openqa.selenium.amazon.merch.auto.AmazonTool.USER_HOME;
+import static org.openqa.selenium.amazon.merch.auto.AmazonTool.hasQuit;
 
 public class MerchForm {
 	public static final String INI_CHROME_DIR = "chrome-dir";
@@ -33,26 +37,23 @@ public class MerchForm {
 	private JPanel panelMain;
 	private JTextField chromeDirTextField;
 	private JButton chooseButton;
-	private JButton initiateButton;
+	private JButton openChromeButton;
 	private JPasswordField passwordField;
 	private JList<File> productList;
 	private JButton browseDataButton;
 	private JButton checkButton;
 	private JButton submitButton;
 	private JButton deleteButton;
+	private JButton openToSubmitButton;
 	private volatile List<Product> products = null;
 	private volatile WebDriver webDriver = null;
 
 	private MerchForm() {
-		initiateButton.addActionListener(event -> {
-			int i = JOptionPane.showConfirmDialog(panelMain, "Chrome will be opened. Please log-in to your merch account and then quit Chrome");
-			if (i == JOptionPane.OK_OPTION) {
-				if (hasQuit(webDriver)) {
-					webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
-				}
-				webDriver.get("https://merch.amazon.com/dashboard");
-				waitForDriverToClose(webDriver);
+		openChromeButton.addActionListener(event -> {
+			if (hasQuit(webDriver)) {
+				webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
 			}
+			webDriver.get("https://merch.amazon.com/manage/products");
 		});
 		chooseButton.addActionListener(actionEvent -> {
 			JFileChooser chooser = new JFileChooser();
@@ -148,6 +149,41 @@ public class MerchForm {
 			}
 		});
 		chromeDirTextField.setText(USER_HOME.toPath().resolve("chrome-amazon").toString());
+		openToSubmitButton.addActionListener(event -> {
+			if (hasQuit(webDriver)) {
+				JOptionPane.showMessageDialog(panelMain, "Please open Chrome and move to \"Manage\" page", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			List<WebElement> elements = webDriver.findElements(By.className("gear-manage-products-row"));
+			List<String> urls = new ArrayList<>();
+			for (WebElement element : elements) {
+				if (element.getTagName().equals("tr")) {
+					List<WebElement> img = element.findElements(By.className("a-thumbnail-left"));
+					if (img.size() == 0) {
+						continue;
+					}
+					String src = img.get(0).getAttribute("src");
+					if (src == null) {
+						continue;
+					}
+					String[] split = src.split("/");
+					String productId = null;
+					for (int i = 0; i < split.length; i++) {
+						if (split[i].equals("gear")) {
+							productId = split[i + 1];
+						}
+					}
+					List<WebElement> l = element.findElements(By.className("a-text-left"));
+					boolean isPop = l.get(1).getText().equalsIgnoreCase("PopSockets");
+					String newUrl = (isPop ? "https://merch.amazon.com/merch-popsocket/title-setup/" : "https://merch.amazon.com/merch-tshirt/title-setup/") + productId + "/review_details";
+					urls.add(newUrl);
+				}
+			}
+			for (String url : urls) {
+				((JavascriptExecutor) webDriver).executeScript("window.open('" + url + "', '_blank');");
+				LOG.info("Openning in new tab: " + url);
+			}
+		});
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -236,18 +272,18 @@ public class MerchForm {
 		chooseButton = new JButton();
 		chooseButton.setText("Choose");
 		panel2.add(chooseButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		initiateButton = new JButton();
-		initiateButton.setText("Initiate");
-		panel2.add(initiateButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		openChromeButton = new JButton();
+		openChromeButton.setText("Open Chrome");
+		panel2.add(openChromeButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel3 = new JPanel();
-		panel3.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
 		panelMain.add(panel3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		panel3.setBorder(BorderFactory.createTitledBorder("Data "));
 		browseDataButton = new JButton();
 		browseDataButton.setText("Browse");
 		panel3.add(browseDataButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JScrollPane scrollPane1 = new JScrollPane();
-		panel3.add(scrollPane1, new GridConstraints(0, 0, 4, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 500), new Dimension(750, 500), new Dimension(-1, 500), 1, false));
+		panel3.add(scrollPane1, new GridConstraints(0, 0, 5, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 500), new Dimension(750, 500), new Dimension(-1, 500), 1, false));
 		productList = new JList();
 		productList.setVisibleRowCount(12);
 		scrollPane1.setViewportView(productList);
@@ -260,6 +296,9 @@ public class MerchForm {
 		submitButton = new JButton();
 		submitButton.setText("Submit");
 		panel3.add(submitButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		openToSubmitButton = new JButton();
+		openToSubmitButton.setText("Open to submit");
+		panel3.add(openToSubmitButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

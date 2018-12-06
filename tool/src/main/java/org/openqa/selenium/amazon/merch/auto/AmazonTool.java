@@ -96,7 +96,7 @@ public class AmazonTool {
 		return false;
 	}
 
-	public static WebDriver getWebDriver(String userDataDir) {
+	static WebDriver getWebDriver(String userDataDir) {
 		try {
 			if (new File(userDataDir).exists()) {
 				LOG.info("Use an existing user-directory:{}", userDataDir);
@@ -118,28 +118,10 @@ public class AmazonTool {
 
 	static boolean hasQuit(WebDriver driver) {
 		try {
-			driver.getTitle();
+			driver.getWindowHandles();
 			return false;
 		} catch (Exception e) {
 			return true;
-		}
-	}
-
-	static void waitForDriverToClose(WebDriver driver) {
-		try {
-			WebDriverWait wait = new WebDriverWait(driver, 2000);
-			wait.until(ExpectedConditions.not((ExpectedCondition<Boolean>) driver1 -> {
-				try {
-					driver1.getTitle();
-					return true;
-				} catch (Exception ex) {
-					LOG.error("Couldn't Connect Driver / Driver Closed");
-					return false;
-				}
-			}));
-		} catch (org.openqa.selenium.TimeoutException ex) {
-			LOG.info("Timeout Trying Again");
-			waitForDriverToClose(driver);
 		}
 	}
 
