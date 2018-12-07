@@ -2,6 +2,7 @@ package org.openqa.selenium.amazon.merch.auto;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.apache.log4j.PropertyConfigurator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -15,13 +16,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.openqa.selenium.amazon.merch.auto.AmazonTool.USER_HOME;
 import static org.openqa.selenium.amazon.merch.auto.AmazonTool.hasQuit;
@@ -187,6 +188,11 @@ public class MerchForm {
 	}
 
 	public static void main(String[] args) throws IOException {
+		File logDir = new File(USER_HOME, ".ezmerch.logs");
+		logDir.mkdirs();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+		File file = new File(logDir, "app_" + sdf.format(new Date()) + ".log");
+		updateLog4jConfiguration(file.getAbsolutePath());
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -237,6 +243,19 @@ public class MerchForm {
 		});
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	private static void updateLog4jConfiguration(String logFile) {
+		Properties props = new Properties();
+		try {
+			InputStream configStream = MerchForm.class.getResourceAsStream("/log4j.properties");
+			props.load(configStream);
+			configStream.close();
+		} catch (IOException e) {
+			System.out.println("Error: Cannot laod configuration file ");
+		}
+		props.setProperty("log4j.appender.MainLogAppender.File", logFile);
+		PropertyConfigurator.configure(props);
 	}
 
 	{
