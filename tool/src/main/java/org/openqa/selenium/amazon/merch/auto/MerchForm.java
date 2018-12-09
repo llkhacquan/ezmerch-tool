@@ -132,7 +132,9 @@ public class MerchForm {
 					}
 					try {
 						for (Product product : products) {
+							LOG.info("START {}", product);
 							Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
+							LOG.info("DONE {}", product);
 						}
 						JOptionPane.showMessageDialog(panelMain, "Done!");
 					} catch (Exception e) {

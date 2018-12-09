@@ -239,4 +239,15 @@ public final class Product {
 		AMAZON_CO_UK,
 		AMAZON_DE
 	}
+
+	@Override
+	public String toString() {
+		return "Product{" +
+				"pathToFront='" + pathToFront + '\'' +
+				", productType=" + productType +
+				", marketPlace=" + marketPlace +
+				", brandName='" + brandName + '\'' +
+				", titleOfProduct='" + titleOfProduct + '\'' +
+				'}';
+	}
 }
