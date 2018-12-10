@@ -187,11 +187,13 @@ public class MerchForm {
 				} catch (IOException ex) {
 					LOG.error("Exception when saving ini file", ex);
 				}
-				try {
-					Process p = Runtime.getRuntime().exec("attrib +h " + iniFile.getAbsolutePath());
-					p.waitFor();
-				} catch (Exception ex) {
-					LOG.error("Exception when hide the ini file", ex);
+				if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+					try {
+						Process p = Runtime.getRuntime().exec("attrib +h " + iniFile.getAbsolutePath());
+						p.waitFor();
+					} catch (Exception ex) {
+						LOG.error("Exception when hide the ini file", ex);
+					}
 				}
 				super.windowClosing(e);
 			}
