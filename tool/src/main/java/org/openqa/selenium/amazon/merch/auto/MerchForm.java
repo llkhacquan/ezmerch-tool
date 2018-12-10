@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -61,6 +62,17 @@ public class MerchForm {
 		dataChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		dataChooser.setMultiSelectionEnabled(true);
 		dataChooser.setAcceptAllFileFilterUsed(true);
+		dataChooser.setFileFilter(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".json");
+			}
+
+			@Override
+			public String getDescription() {
+				return "*.json";
+			}
+		});
 		browseDataButton.addActionListener(actionEvent -> {
 			if (dataChooser.showOpenDialog(browseDataButton) == JFileChooser.APPROVE_OPTION) {
 				File[] files = dataChooser.getSelectedFiles();
