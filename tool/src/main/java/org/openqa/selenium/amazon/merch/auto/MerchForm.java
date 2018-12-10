@@ -3,10 +3,7 @@ package org.openqa.selenium.amazon.merch.auto;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.PropertyConfigurator;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +42,6 @@ public class MerchForm {
 	private JButton checkButton;
 	private JButton submitButton;
 	private JButton deleteButton;
-	private JButton openToSubmitButton;
 	private volatile List<Product> products = null;
 	private volatile WebDriver webDriver = null;
 
@@ -152,41 +148,6 @@ public class MerchForm {
 			}
 		});
 		chromeDirTextField.setText(USER_HOME.toPath().resolve("chrome-amazon").toString());
-		openToSubmitButton.addActionListener(event -> {
-			if (hasQuit(webDriver)) {
-				JOptionPane.showMessageDialog(panelMain, "Please open Chrome and move to \"Manage\" page", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			List<WebElement> elements = webDriver.findElements(By.className("gear-manage-products-row"));
-			List<String> urls = new ArrayList<>();
-			for (WebElement element : elements) {
-				if (element.getTagName().equals("tr")) {
-					List<WebElement> img = element.findElements(By.className("a-thumbnail-left"));
-					if (img.size() == 0) {
-						continue;
-					}
-					String src = img.get(0).getAttribute("src");
-					if (src == null) {
-						continue;
-					}
-					String[] split = src.split("/");
-					String productId = null;
-					for (int i = 0; i < split.length; i++) {
-						if (split[i].equals("gear")) {
-							productId = split[i + 1];
-						}
-					}
-					List<WebElement> l = element.findElements(By.className("a-text-left"));
-					boolean isPop = l.get(1).getText().equalsIgnoreCase("PopSockets");
-					String newUrl = (isPop ? "https://merch.amazon.com/merch-popsocket/title-setup/" : "https://merch.amazon.com/merch-tshirt/title-setup/") + productId + "/review_details";
-					urls.add(newUrl);
-				}
-			}
-			for (String url : urls) {
-				((JavascriptExecutor) webDriver).executeScript("window.open('" + url + "', '_blank');");
-				LOG.info("Openning in new tab: " + url);
-			}
-		});
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -317,9 +278,6 @@ public class MerchForm {
 		submitButton = new JButton();
 		submitButton.setText("Submit");
 		panel3.add(submitButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		openToSubmitButton = new JButton();
-		openToSubmitButton.setText("Open to submit");
-		panel3.add(openToSubmitButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**
