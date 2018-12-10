@@ -15,6 +15,7 @@ import java.util.List;
 
 public final class Product {
 	private static final Logger LOG = LoggerFactory.getLogger(Product.class);
+	private final File jsonFile;
 	// first
 	private final String pathToFront;
 	private final String pathToBack;
@@ -33,14 +34,15 @@ public final class Product {
 	private final String keyFeature2;
 	private final String productDescription;
 
-	public Product(String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, Color[] color, double listPrice,
-	               String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
+	private Product(File jsonFile, String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, Color[] color, double listPrice,
+	                String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
 		Preconditions.checkNotNull(brandName);
 		Preconditions.checkNotNull(titleOfProduct);
 		Preconditions.checkNotNull(keyFeature1);
 		Preconditions.checkNotNull(keyFeature2);
 		Preconditions.checkNotNull(productDescription);
 		Preconditions.checkArgument(pathToFront != null || pathToBack != null, "You must provide front or back");
+		this.jsonFile = jsonFile;
 		this.pathToFront = pathToFront;
 		this.pathToBack = pathToBack;
 		Preconditions.checkArgument(marketPlace == MarketPlace.AMAZON_COM || productType == ProductType.STANDARD_T_SHIRT);
@@ -69,13 +71,11 @@ public final class Product {
 		this.productDescription = productDescription;
 	}
 
-	public static Product parseFromJson(File file) throws IOException {
+	static Product parseFromJson(File file) throws IOException {
 		String json = new String(Files.readAllBytes(file.toPath()));
 		JSONObject obj = new JSONObject(json);
 		System.out.println(obj);
-		obj.keys().forEachRemaining(s -> {
-			System.out.println(s + " " + obj.get(s));
-		});
+		obj.keys().forEachRemaining(s -> System.out.println(s + " " + obj.get(s)));
 		ProductType productType = ProductType.values()[obj.getInt("productType") - 1];
 		MarketPlace marketPlace = MarketPlace.valueOf(obj.getString("marketplace").replaceAll("\\.", "_").toUpperCase());
 		double listPrice = obj.getDouble("listPrice");
@@ -101,9 +101,7 @@ public final class Product {
 		List<Color> colorsList = new ArrayList<>();
 		{
 			final JSONArray checkedColors = obj.getJSONArray("checkedColors");
-			checkedColors.forEach(o -> {
-				colorsList.add(Color.valueOf(o.toString().toLowerCase().replaceAll(" ", "_")));
-			});
+			checkedColors.forEach(o -> colorsList.add(Color.valueOf(o.toString().toLowerCase().replaceAll(" ", "_"))));
 		}
 		String[] description = obj.getString("description").split("\n");
 		String brand = "";
@@ -126,7 +124,7 @@ public final class Product {
 		if (description.length >= 5) {
 			des = description[4].trim();
 		}
-		return new Product(front, back, productType, marketPlace, fitTypeResult[0], fitTypeResult[1], fitTypeResult[2], colorsList.toArray(new Color[0]), listPrice, brand, title, key1, key2, des);
+		return new Product(file, front, back, productType, marketPlace, fitTypeResult[0], fitTypeResult[1], fitTypeResult[2], colorsList.toArray(new Color[0]), listPrice, brand, title, key1, key2, des);
 	}
 
 	private static void checkImageDimension(BufferedImage image, ProductType productType, int w, int h) {
@@ -139,6 +137,10 @@ public final class Product {
 
 	public static void main(String[] args) throws IOException {
 		Product.parseFromJson(new File("form.json"));
+	}
+
+	public File getJsonFile() {
+		return jsonFile;
 	}
 
 	public String getPathToFront() {
@@ -242,12 +244,6 @@ public final class Product {
 
 	@Override
 	public String toString() {
-		return "Product{" +
-				"pathToFront='" + pathToFront + '\'' +
-				", productType=" + productType +
-				", marketPlace=" + marketPlace +
-				", brandName='" + brandName + '\'' +
-				", titleOfProduct='" + titleOfProduct + '\'' +
-				'}';
+		return jsonFile + " [" + productType + ", " + marketPlace + ", " + (pathToFront != null ? new File(pathToFront).getName() : null) + ", " + (pathToBack != null ? new File(pathToBack).getName() : null) + "]";
 	}
 }

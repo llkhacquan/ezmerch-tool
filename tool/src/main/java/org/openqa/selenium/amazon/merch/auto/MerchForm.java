@@ -16,7 +16,6 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -30,19 +29,17 @@ public class MerchForm {
 	public static final String INI_PW = "pw";
 	private static final Logger LOG = LoggerFactory.getLogger(MerchForm.class);
 	private static final File iniFile = new File(USER_HOME, ".ezmerch.ini");
-	private final DefaultListModel<File> selectedDataFiles = new DefaultListModel<>();
+	private final DefaultListModel<Product> products = new DefaultListModel<>();
 	private final JFileChooser dataChooser = new JFileChooser();
 	private JPanel panelMain;
 	private JTextField chromeDirTextField;
 	private JButton chooseButton;
 	private JButton openChromeButton;
 	private JPasswordField passwordField;
-	private JList<File> productList;
+	private JList<Product> productList;
 	private JButton browseDataButton;
-	private JButton checkButton;
 	private JButton submitButton;
 	private JButton deleteButton;
-	private volatile List<Product> products = null;
 	private volatile WebDriver webDriver = null;
 
 	private MerchForm() {
@@ -68,14 +65,18 @@ public class MerchForm {
 			if (dataChooser.showOpenDialog(browseDataButton) == JFileChooser.APPROVE_OPTION) {
 				File[] files = dataChooser.getSelectedFiles();
 				for (File file : files) {
-					if (!selectedDataFiles.contains(file)) {
-						selectedDataFiles.addElement(file);
+					try {
+						Product product = Product.parseFromJson(file);
+						products.addElement(product);
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(panelMain, "Error when parsing file " + file + ". Error:\n" + e.toString());
+						LOG.error("Error when parsing file {}", file, e);
 					}
 				}
 
 			}
 		});
-		productList.setModel(selectedDataFiles);
+		productList.setModel(products);
 		productList.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent keyEvent) {
@@ -85,8 +86,8 @@ public class MerchForm {
 			@Override
 			public void keyPressed(KeyEvent keyEvent) {
 				if (keyEvent.getKeyCode() == KeyEvent.VK_DELETE) {
-					for (File file : productList.getSelectedValuesList()) {
-						selectedDataFiles.removeElement(file);
+					for (Product product : productList.getSelectedValuesList()) {
+						products.removeElement(product);
 					}
 				}
 			}
@@ -96,29 +97,8 @@ public class MerchForm {
 
 			}
 		});
-		checkButton.addActionListener(event -> {
-			int n = selectedDataFiles.getSize();
-			products = new ArrayList<>();
-			for (int i = 0; i < n; i++) {
-				try {
-					productList.setSelectedIndex(i);
-					Product product = Product.parseFromJson(selectedDataFiles.get(i));
-					products.add(product);
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(panelMain, "Error when parsing file " + selectedDataFiles.get(i) + ". Error:\n" + e.toString());
-					LOG.error("Error when parsing file {}", selectedDataFiles.get(i), e);
-					products = null;
-					break;
-				}
-			}
-			if (products != null) {
-				JOptionPane.showMessageDialog(panelMain, "Loaded " + products.size() + " product(s)");
-			}
-		});
 		submitButton.addActionListener(actionEvent -> {
-			if (products == null) {
-				JOptionPane.showMessageDialog(panelMain, "Please \"check\" the data files first");
-			} else if (products.size() == 0) {
+			if (products.size() == 0) {
 				JOptionPane.showMessageDialog(panelMain, "There is no product to summit");
 			} else {
 				int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting " + products.size() + " product. Please confirm to process...");
@@ -127,7 +107,9 @@ public class MerchForm {
 						webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
 					}
 					try {
-						for (Product product : products) {
+						for (int i = 0; i < products.getSize(); i++) {
+							Product product = products.get(i);
+							productList.setSelectedIndex(i);
 							LOG.info("START {}", product);
 							Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
 							LOG.info("DONE {}", product);
@@ -136,15 +118,13 @@ public class MerchForm {
 					} catch (Exception e) {
 						LOG.error("Error when submitting", e);
 						JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-					} finally {
-						products = null;
 					}
 				}
 			}
 		});
 		deleteButton.addActionListener(e -> {
-			for (File file : productList.getSelectedValuesList()) {
-				selectedDataFiles.removeElement(file);
+			for (Product product : productList.getSelectedValuesList()) {
+				products.removeElement(product);
 			}
 		});
 		chromeDirTextField.setText(USER_HOME.toPath().resolve("chrome-amazon").toString());
@@ -272,9 +252,6 @@ public class MerchForm {
 		deleteButton = new JButton();
 		deleteButton.setText("Delete");
 		panel3.add(deleteButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		checkButton = new JButton();
-		checkButton.setText("Check");
-		panel3.add(checkButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		submitButton = new JButton();
 		submitButton.setText("Submit");
 		panel3.add(submitButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
