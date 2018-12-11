@@ -262,7 +262,8 @@ public final class Auto {
 	/**
 	 * perform login and wait until new page is loaded
 	 */
-	private static void checkSignIn(WebDriver driver, CharSequence password) {
+	private static void checkSignIn(WebDriver driver, CharSequence password) throws InterruptedException {
+		Thread.sleep(1000);
 		if (driver.getTitle().equalsIgnoreCase("Amazon Sign In")) {
 //			try {
 //				final WebElement apEmail = driver.findElement(By.id("ap_email"));
