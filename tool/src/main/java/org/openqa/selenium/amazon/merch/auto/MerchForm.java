@@ -113,25 +113,8 @@ public class MerchForm {
 			if (products.size() == 0) {
 				JOptionPane.showMessageDialog(panelMain, "There is no product to summit");
 			} else {
-				int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting " + products.size() + " product. Please confirm to process...");
-				if (confirmResult == JOptionPane.OK_OPTION) {
-					if (hasQuit(webDriver)) {
-						webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
-					}
-					try {
-						for (int i = 0; i < products.getSize(); i++) {
-							Product product = products.get(i);
-							productList.setSelectedIndex(i);
-							LOG.info("START {}", product);
-							Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
-							LOG.info("DONE {}", product);
-						}
-						JOptionPane.showMessageDialog(panelMain, "Done!");
-					} catch (Exception e) {
-						LOG.error("Error when submitting", e);
-						JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-					}
-				}
+				Thread thread = new Thread(this::submit);
+				thread.start();
 			}
 		});
 		deleteButton.addActionListener(e -> {
@@ -140,6 +123,28 @@ public class MerchForm {
 			}
 		});
 		chromeDirTextField.setText(USER_HOME.toPath().resolve("chrome-amazon").toString());
+	}
+
+	private void submit() {
+		int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting " + products.size() + " product. Please confirm to process...");
+		if (confirmResult == JOptionPane.OK_OPTION) {
+			if (hasQuit(webDriver)) {
+				webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
+			}
+			try {
+				for (int i = 0; i < products.getSize(); i++) {
+					Product product = products.get(i);
+					productList.setSelectedIndex(i);
+					LOG.info("START {}", product);
+					Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
+					LOG.info("DONE {}", product);
+				}
+				JOptionPane.showMessageDialog(panelMain, "Done!");
+			} catch (Exception e) {
+				LOG.error("Error when submitting", e);
+				JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
