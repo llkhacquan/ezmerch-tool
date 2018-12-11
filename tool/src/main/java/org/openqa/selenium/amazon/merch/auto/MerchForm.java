@@ -65,7 +65,7 @@ public class MerchForm {
 		dataChooser.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File f) {
-				return f.getName().endsWith(".json");
+				return f.getName().endsWith(".json") || f.isDirectory();
 			}
 
 			@Override
