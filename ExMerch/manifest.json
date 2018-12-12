@@ -1,0 +1,24 @@
+{
+  "name": "ExMerch",
+  "description": "Add buttons for quick edit and submit products",
+  "version": "1.0",
+  "page_action": {
+    "default_icon": {
+      "256": "images/favicon-256.png"
+    }
+  },
+  "icons": {
+    "256": "images/favicon-256.png"
+  },
+  "permissions": [
+    "https://merch.amazon.com/manage/products/*",
+    "declarativeContent"
+  ],
+  "manifest_version": 2,
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  }
+}
