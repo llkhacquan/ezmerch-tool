@@ -154,19 +154,19 @@ public final class Auto {
 			for (Product.Color color : colors) {
 				// clear all check
 				WebElement element = driver.findElement(By.id(color.getId()));
-				if (element.getText().length() > 0) {
+				while (element.getText().length() > 0) {
 					actions.moveToElement(element).click().perform();
-					Thread.sleep(500);
+					Thread.sleep(100);
 				}
 			}
 			LOG.info("Cleared all color check");
 			for (Product.Color i : product.getColor()) {
 				WebElement element = driver.findElement(By.id(i.getId()));
-				if (element.getText().length() == 0) {
+				while (element.getText().length() == 0) {
 					actions.moveToElement(element).click().perform();
-					Thread.sleep(500);
-					LOG.info("Check color {}", i);
+					Thread.sleep(100);
 				}
+				LOG.info("Check color {}", i);
 			}
 		}
 		{
