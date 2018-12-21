@@ -64,47 +64,32 @@ final class Auto {
 				WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(4);
 				element.sendKeys(product.getPathToFront());
 				LOG.info("Submit file {}", product.getPathToFront());
-				do {
-					Thread.sleep(5000);
-					LOG.info("Wait for submit button enabled");
-				} while (!submit.isEnabled());
+				waitForSubmitButton(submit);
 			} else if (product.getProductType() == Product.ProductType.PULLOVER_HOODIE) {
 				if (product.getPathToFront().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(2);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
-					do {
-						Thread.sleep(5000);
-						LOG.info("Wait for submit button enabled");
-					} while (!submit.isEnabled());
+					waitForSubmitButton(submit);
 				}
 				if (product.getPathToBack().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(3);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
-					do {
-						Thread.sleep(5000);
-						LOG.info("Wait for submit button enabled");
-					} while (!submit.isEnabled());
+					waitForSubmitButton(submit);
 				}
 			} else {
 				if (product.getPathToFront() != null && product.getPathToFront().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(0);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
-					do {
-						Thread.sleep(5000);
-						LOG.info("Wait for submit button enabled");
-					} while (!submit.isEnabled());
+					waitForSubmitButton(submit);
 				}
 				if (product.getPathToBack() != null && product.getPathToBack().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(1);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
-					do {
-						Thread.sleep(5000);
-						LOG.info("Wait for submit button enabled");
-					} while (!submit.isEnabled());
+					waitForSubmitButton(submit);
 				}
 			}
 		}
@@ -245,6 +230,14 @@ final class Auto {
 			}
 			checkSignIn(driver, password, url -> url.equals("https://merch.amazon.com/manage/products"));
 		}
+	}
+
+	private static void waitForSubmitButton(WebElement submit) throws InterruptedException {
+		do {
+			Thread.sleep(4500);
+			LOG.info("Wait for submit button enabled");
+			Thread.sleep(500);
+		} while (!submit.isEnabled());
 	}
 
 	private static WebElement findByIdWithCustomLang(WebDriver driver, String id) {
