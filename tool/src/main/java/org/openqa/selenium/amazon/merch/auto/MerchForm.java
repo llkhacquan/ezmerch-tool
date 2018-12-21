@@ -25,9 +25,9 @@ import static org.openqa.selenium.amazon.merch.auto.AmazonTool.USER_HOME;
 import static org.openqa.selenium.amazon.merch.auto.AmazonTool.hasQuit;
 
 public class MerchForm {
-	public static final String INI_CHROME_DIR = "chrome-dir";
-	public static final String INI_DATA_DIR = "data-dir";
-	public static final String INI_PW = "pw";
+	private static final String INI_CHROME_DIR = "chrome-dir";
+	private static final String INI_DATA_DIR = "data-dir";
+	private static final String INI_PW = "pw";
 	private static final Logger LOG = LoggerFactory.getLogger(MerchForm.class);
 	private static final File iniFile = new File(USER_HOME, ".ezmerch.ini");
 	private final DefaultListModel<Product> products = new DefaultListModel<>();
@@ -142,7 +142,7 @@ public class MerchForm {
 				JOptionPane.showMessageDialog(panelMain, "Done!");
 			} catch (Exception e) {
 				LOG.error("Error when submitting", e);
-				JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panelMain, e, "Error! Please check log for more details!", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -191,14 +191,6 @@ public class MerchForm {
 					writer.write(INI_PW + "=" + new String(form.passwordField.getPassword()) + "\n");
 				} catch (IOException ex) {
 					LOG.error("Exception when saving ini file", ex);
-				}
-				if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-					try {
-						Process p = Runtime.getRuntime().exec("attrib +h " + iniFile.getAbsolutePath());
-						p.waitFor();
-					} catch (Exception ex) {
-						LOG.error("Exception when hide the ini file", ex);
-					}
 				}
 				super.windowClosing(e);
 			}
