@@ -80,9 +80,13 @@ public final class Product {
 		MarketPlace marketPlace = MarketPlace.valueOf(obj.getString("marketplace").replaceAll("\\.", "_").toUpperCase());
 		double listPrice = obj.getDouble("listPrice");
 		String front = file.getParentFile().toPath().resolve(obj.getString("front")).toString();
-		Preconditions.checkState(new File(front).exists(), front + " must exist");
+		if (!new File(front).isFile()) {
+			front = null;
+		}
 		String back = file.getParentFile().toPath().resolve(obj.getString("back")).toString();
-		Preconditions.checkState(new File(back).exists(), back + " must exist");
+		if (!new File(back).isFile()) {
+			back = null;
+		}
 		boolean[] fitTypeResult = new boolean[3];
 		{
 			final JSONArray fitType = obj.getJSONArray("fitType");

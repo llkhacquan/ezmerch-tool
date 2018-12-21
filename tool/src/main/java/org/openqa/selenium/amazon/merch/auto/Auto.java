@@ -87,7 +87,7 @@ public final class Auto {
 					} while (!submit.isEnabled());
 				}
 			} else {
-				if (product.getPathToFront().length() > 0) {
+				if (product.getPathToFront() != null && product.getPathToFront().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(0);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
@@ -96,7 +96,7 @@ public final class Auto {
 						LOG.info("Wait for submit button enabled");
 					} while (!submit.isEnabled());
 				}
-				if (product.getPathToBack().length() > 0) {
+				if (product.getPathToBack() != null && product.getPathToBack().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(1);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
