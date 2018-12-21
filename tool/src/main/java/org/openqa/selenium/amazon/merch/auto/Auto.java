@@ -12,11 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static org.openqa.selenium.amazon.merch.auto.AmazonPageByTitle.CREATE;
 import static org.openqa.selenium.amazon.merch.auto.Product.Color.*;
 
-public final class Auto {
+final class Auto {
 	private static final Logger LOG = LoggerFactory.getLogger(Auto.class);
 	private static final String PAGE_1 = "choose_variations";
 	private static final String PAGE_2 = "add_details";
@@ -32,14 +33,14 @@ public final class Auto {
 	 * @param password optional password
 	 * @return true if everything is ok
 	 */
-	public static boolean createNewProduct(WebDriver driver, Product product, String password) throws InterruptedException {
+	static void createNewProduct(WebDriver driver, Product product, String password) throws InterruptedException {
 		Preconditions.checkNotNull(driver);
 		Preconditions.checkNotNull(product);
 		Actions actions = new Actions(driver);
 		// And now use this to visit Google
 		// gotoPage(driver, AmazonPageByTitle.CREATE);
 		driver.get(CREATE.url);
-		checkSignIn(driver, password);
+		checkSignIn(driver, password, url -> url.endsWith("upload_art"));
 		{
 			WebElement productTypeElement = driver.findElement(By.id("data-draft-shirt-type-native"));
 			Select dropdown = new Select(productTypeElement);
@@ -115,10 +116,7 @@ public final class Auto {
 			actions.moveToElement(submit).click().perform();
 			driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 			LOG.info("Clicked the submit button");
-			checkSignIn(driver, password);
-			do {
-				Thread.sleep(1000);
-			} while (!driver.getCurrentUrl().endsWith(PAGE_1));
+			checkSignIn(driver, password, url -> url.endsWith(PAGE_1));
 		}
 
 		if (product.getProductType() != Product.ProductType.POP_SOCKETS) {
@@ -180,10 +178,7 @@ public final class Auto {
 			Preconditions.checkArgument(submit.isEnabled());
 			LOG.info("Clicking submit button...");
 			submit.click();
-			checkSignIn(driver, password);
-			do {
-				Thread.sleep(1000);
-			} while (!driver.getCurrentUrl().endsWith(PAGE_2));
+			checkSignIn(driver, password, url -> url.endsWith(PAGE_2));
 		}
 
 		{
@@ -229,10 +224,7 @@ public final class Auto {
 			LOG.info("Submitting...");
 			actions.moveToElement(submit).click().perform();
 			driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
-			checkSignIn(driver, password);
-			do {
-				Thread.sleep(1000);
-			} while (!driver.getCurrentUrl().endsWith(PAGE_3));
+			checkSignIn(driver, password, url -> url.endsWith(PAGE_3));
 		}
 		{
 			WebElement element = driver.findElement(By.id("data-shirt-configurations-is-discoverable-accordion"))
@@ -251,43 +243,7 @@ public final class Auto {
 					break;
 				}
 			}
-			checkSignIn(driver, password);
-			do {
-				Thread.sleep(1000);
-			} while (!driver.getCurrentUrl().equals("https://merch.amazon.com/manage/products"));
-		}
-		return true;
-	}
-
-	/**
-	 * perform login and wait until new page is loaded
-	 */
-	private static void checkSignIn(WebDriver driver, CharSequence password) throws InterruptedException {
-		Thread.sleep(1000);
-		if (driver.getTitle().equalsIgnoreCase("Amazon Sign In")) {
-//			try {
-//				final WebElement apEmail = driver.findElement(By.id("ap_email"));
-//				if (apEmail.isDisplayed()) {
-//					apEmail.clear();
-//					apEmail.sendKeys(EMAIL);
-//				}
-//			} catch (NoSuchElementException ignored) {
-//			}
-//			try {
-//				final WebElement rememberMe = driver.findElement(By.name("rememberMe"));
-//				if (!rememberMe.isSelected()) {
-//					Actions actions = new Actions(driver);
-//					actions.moveToElement(rememberMe).click().perform();
-//					driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
-//				}
-//			} catch (NoSuchElementException ignored) {
-//			}
-			final WebElement apPassword = driver.findElement(By.id("ap_password"));
-			if (apPassword.isDisplayed()) {
-				apPassword.clear();
-				apPassword.sendKeys(password);
-			}
-			apPassword.submit();
+			checkSignIn(driver, password, url -> url.equals("https://merch.amazon.com/manage/products"));
 		}
 	}
 
@@ -308,5 +264,19 @@ public final class Auto {
 				}
 			}
 		}
+	}
+
+	private static void checkSignIn(WebDriver driver, String password, Predicate<String> urlVerifier) throws InterruptedException {
+		do {
+			Thread.sleep(1000);
+			if (driver.getTitle().equalsIgnoreCase("Amazon Sign In")) {
+				final WebElement apPassword = driver.findElement(By.id("ap_password"));
+				if (apPassword.isDisplayed()) {
+					apPassword.clear();
+					apPassword.sendKeys((CharSequence) password);
+				}
+				apPassword.submit();
+			}
+		} while (!urlVerifier.test(driver.getCurrentUrl()));
 	}
 }
