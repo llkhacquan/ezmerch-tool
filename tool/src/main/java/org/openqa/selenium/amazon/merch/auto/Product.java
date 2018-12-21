@@ -1,6 +1,8 @@
 package org.openqa.selenium.amazon.merch.auto;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -33,7 +35,6 @@ public final class Product {
 	private final String keyFeature1;
 	private final String keyFeature2;
 	private final String productDescription;
-
 	private Product(File jsonFile, String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, Color[] color, double listPrice,
 	                String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
 		Preconditions.checkNotNull(brandName);
@@ -143,6 +144,30 @@ public final class Product {
 		Product.parseFromJson(new File("form.json"));
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		Product product = (Product) o;
+
+		return new EqualsBuilder()
+				.append(jsonFile, product.jsonFile)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+				.append(jsonFile)
+				.toHashCode();
+	}
+
 	public File getJsonFile() {
 		return jsonFile;
 	}
@@ -203,6 +228,11 @@ public final class Product {
 		return productDescription;
 	}
 
+	@Override
+	public String toString() {
+		return jsonFile + " [" + productType + ", " + marketPlace + ", " + (pathToFront != null ? new File(pathToFront).getName() : null) + ", " + (pathToBack != null ? new File(pathToBack).getName() : null) + "]";
+	}
+
 	enum Color {
 		dark_heather,
 		heather_grey,
@@ -244,10 +274,5 @@ public final class Product {
 		AMAZON_COM,
 		AMAZON_CO_UK,
 		AMAZON_DE
-	}
-
-	@Override
-	public String toString() {
-		return jsonFile + " [" + productType + ", " + marketPlace + ", " + (pathToFront != null ? new File(pathToFront).getName() : null) + ", " + (pathToBack != null ? new File(pathToBack).getName() : null) + "]";
 	}
 }
