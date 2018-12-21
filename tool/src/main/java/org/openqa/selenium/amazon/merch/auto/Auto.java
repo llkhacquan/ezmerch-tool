@@ -110,16 +110,12 @@ final class Auto {
 				actions.moveToElement(element).click().perform();
 				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked men type");
-			} else {
-				LOG.info("Skip men type");
 			}
 			element = driver.findElement(By.id("data-shirt-configurations-fit-type-women"));
 			if (product.isFitTypeWomen() != element.isSelected()) {
 				actions.moveToElement(element).click().perform();
 				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked women type");
-			} else {
-				LOG.info("Skip women type");
 			}
 
 			element = driver.findElement(By.id("data-shirt-configurations-fit-type-youth"));
@@ -127,8 +123,6 @@ final class Auto {
 				actions.moveToElement(element).click().perform();
 				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked youth type");
-			} else {
-				LOG.info("Skip youth type");
 			}
 		}
 		if (product.getProductType() != Product.ProductType.POP_SOCKETS) {
@@ -142,7 +136,6 @@ final class Auto {
 					Thread.sleep(100);
 				}
 			}
-			LOG.info("Cleared all color check");
 			for (Product.Color i : product.getColor()) {
 				WebElement element = driver.findElement(By.id(i.getId()));
 				while (element.getText().length() == 0) {
@@ -156,7 +149,7 @@ final class Auto {
 			WebElement element = driver.findElement(By.id("data-draft-list-prices-marketplace-amount"));
 			element.clear();
 			element.sendKeys(String.valueOf(product.getListPrice()));
-			LOG.info("Set list prices");
+			LOG.info("Set list prices:", product.getListPrice());
 		}
 		{
 			WebElement submit = driver.findElement(By.id("save-and-continue-choose-variations-announce"));
@@ -171,35 +164,35 @@ final class Auto {
 			if (product.getBrandName() != null) {
 				element.clear();
 				element.sendKeys(product.getBrandName());
-				LOG.info("Set brand name");
+				LOG.info("Set brand name:", product.getBrandName());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-name");
 			if (product.getTitleOfProduct() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getTitleOfProduct());
-				LOG.info("Set product title");
+				LOG.info("Set product title", product.getTitleOfProduct());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-bullet-points-bullet1");
 			if (product.getKeyFeature1() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getKeyFeature1());
-				LOG.info("Set key feature 1");
+				LOG.info("Set key feature 1", product.getKeyFeature1());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-bullet-points-bullet2");
 			if (product.getKeyFeature2() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getKeyFeature2());
-				LOG.info("Set key feature 2");
+				LOG.info("Set key feature 2", product.getKeyFeature2());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-description");
 			if (product.getProductDescription() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getProductDescription());
-				LOG.info("Set product description");
+				LOG.info("Set product description", product.getProductDescription());
 			}
 		}
 
@@ -215,7 +208,7 @@ final class Auto {
 			WebElement element = driver.findElement(By.id("data-shirt-configurations-is-discoverable-accordion"))
 					.findElement(By.className("a-icon-radio-inactive"));
 			element.click();
-			LOG.info("Select draft");
+			LOG.info("Select draft option");
 			Thread.sleep(1000);
 		}
 		{
@@ -223,7 +216,7 @@ final class Auto {
 				if (element.getText().equalsIgnoreCase("Save product")) {
 					Preconditions.checkArgument(element.isEnabled());
 					actions.moveToElement(element).click().perform();
-					LOG.info("Save product");
+					LOG.info("Clicked save product");
 					driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 					break;
 				}
@@ -235,7 +228,7 @@ final class Auto {
 	private static void waitForSubmitButton(WebElement submit) throws InterruptedException {
 		do {
 			Thread.sleep(4500);
-			LOG.info("Wait for submit button enabled");
+			LOG.info("Wait for submit button enabled...");
 			Thread.sleep(500);
 		} while (!submit.isEnabled());
 	}
