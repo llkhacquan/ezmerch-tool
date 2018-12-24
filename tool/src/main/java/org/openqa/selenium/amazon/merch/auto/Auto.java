@@ -192,8 +192,8 @@ final class Auto {
 		{
 			WebElement submit = driver.findElement(By.id("save-and-continue-announce"));
 			Preconditions.checkArgument(submit.isEnabled());
-			LOG.info("Submitting...");
-			actions.moveToElement(submit).click().perform();
+			submit.click();
+			LOG.info("Submitted");
 			checkSignIn(driver, password, url -> url.endsWith(PAGE_3));
 		}
 		{
@@ -207,7 +207,7 @@ final class Auto {
 			for (WebElement element : driver.findElements(By.className("a-button-inner"))) {
 				if (element.getText().equalsIgnoreCase("Save product")) {
 					Preconditions.checkArgument(element.isEnabled());
-					actions.moveToElement(element).click().perform();
+					element.click();
 					LOG.info("Clicked save product");
 					break;
 				}
@@ -243,16 +243,20 @@ final class Auto {
 		}
 	}
 
+	/**
+	 * wait for 0.5s and check the signIn as well
+	 */
 	private static void checkSignIn(WebDriver driver, String password, Predicate<String> urlVerifier) throws InterruptedException {
 		do {
-			Thread.sleep(1000);
-			if (driver.getTitle().equalsIgnoreCase("Amazon Sign In")) {
+			Thread.sleep(500);
+			if (driver.getCurrentUrl().startsWith("https://www.amazon.com/ap/signin")) {
+				LOG.info("Meet sign in page!");
 				final WebElement apPassword = driver.findElement(By.id("ap_password"));
-				if (apPassword.isDisplayed()) {
-					apPassword.clear();
-					apPassword.sendKeys((CharSequence) password);
-				}
+				apPassword.clear();
+				apPassword.sendKeys((CharSequence) password);
+				LOG.info("Filled the password");
 				apPassword.submit();
+				LOG.info("Sign in..");
 			}
 		} while (!urlVerifier.test(driver.getCurrentUrl()));
 	}
