@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static org.openqa.selenium.amazon.merch.auto.AmazonPageByTitle.CREATE;
@@ -37,8 +36,6 @@ final class Auto {
 		Preconditions.checkNotNull(driver);
 		Preconditions.checkNotNull(product);
 		Actions actions = new Actions(driver);
-		// And now use this to visit Google
-		// gotoPage(driver, AmazonPageByTitle.CREATE);
 		driver.get(CREATE.url);
 		checkSignIn(driver, password, url -> url.endsWith("upload_art"));
 		{
@@ -98,8 +95,7 @@ final class Auto {
 			WebElement submit = driver.findElement(By.id("save-and-continue-upload-art-announce"));
 			Preconditions.checkArgument(submit.isEnabled());
 			Thread.sleep(3000);
-			actions.moveToElement(submit).click().perform();
-			driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
+			submit.click();
 			LOG.info("Clicked the submit button");
 			checkSignIn(driver, password, url -> url.endsWith(PAGE_1));
 		}
@@ -108,20 +104,17 @@ final class Auto {
 			WebElement element = driver.findElement(By.id("data-shirt-configurations-fit-type-men"));
 			if (product.isFitTypeMen() != element.isSelected()) {
 				actions.moveToElement(element).click().perform();
-				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked men type");
 			}
 			element = driver.findElement(By.id("data-shirt-configurations-fit-type-women"));
 			if (product.isFitTypeWomen() != element.isSelected()) {
 				actions.moveToElement(element).click().perform();
-				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked women type");
 			}
 
 			element = driver.findElement(By.id("data-shirt-configurations-fit-type-youth"));
 			if (product.isFitTypeYouth() != element.isSelected()) {
 				actions.moveToElement(element).click().perform();
-				driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 				LOG.info("Clicked youth type");
 			}
 		}
@@ -201,7 +194,6 @@ final class Auto {
 			Preconditions.checkArgument(submit.isEnabled());
 			LOG.info("Submitting...");
 			actions.moveToElement(submit).click().perform();
-			driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 			checkSignIn(driver, password, url -> url.endsWith(PAGE_3));
 		}
 		{
@@ -217,7 +209,6 @@ final class Auto {
 					Preconditions.checkArgument(element.isEnabled());
 					actions.moveToElement(element).click().perform();
 					LOG.info("Clicked save product");
-					driver.manage().timeouts().pageLoadTimeout(-1, TimeUnit.MILLISECONDS);
 					break;
 				}
 			}
