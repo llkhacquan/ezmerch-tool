@@ -63,13 +63,13 @@ final class Auto {
 				LOG.info("Submit file {}", product.getPathToFront());
 				waitForSubmitButton(submit);
 			} else if (product.getProductType() == Product.ProductType.PULLOVER_HOODIE) {
-				if (product.getPathToFront().length() > 0) {
+				if (product.getPathToFront() != null && product.getPathToFront().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(2);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
 					waitForSubmitButton(submit);
 				}
-				if (product.getPathToBack().length() > 0) {
+				if (product.getPathToBack() != null && product.getPathToBack().length() > 0) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(3);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
