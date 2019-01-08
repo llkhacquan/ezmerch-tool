@@ -1,5 +1,6 @@
 package org.openqa.selenium.amazon.merch.auto;
 
+import com.google.common.base.Preconditions;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.PropertyConfigurator;
@@ -195,23 +196,36 @@ public class MerchForm {
 	}
 
 	private void submit() {
+		Preconditions.checkState(products.size() > 0);
 		int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting " + products.size() + " product. Please confirm to process...");
 		if (confirmResult == JOptionPane.OK_OPTION) {
 			if (hasQuit(webDriver)) {
 				webDriver = AmazonTool.getWebDriver(chromeDirTextField.getText());
 			}
-			try {
-				for (int i = 0; i < products.getSize(); i++) {
-					Product product = products.get(i);
-					productList.setSelectedIndex(i);
-					LOG.info("START {}", product);
+			boolean success = true;
+			for (int i = 0; i < products.getSize(); i++) {
+				Product product = products.get(i);
+				productList.setSelectedIndex(i);
+				LOG.info("START {}", product);
+				try {
 					Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
-					LOG.info("DONE {}", product);
+				} catch (Exception e) {
+					LOG.error("Error when submitting. Will try again", e);
+					LOG.info("TRY-AGAIN {}", product);
+					try {
+						Thread.sleep(1000);
+						Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
+					} catch (Exception e1) {
+						LOG.error("Error 2nd time when submitting", e);
+						JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error 2 times when submitting " + products.get(i), JOptionPane.ERROR_MESSAGE);
+						success = false;
+						break;
+					}
 				}
+				LOG.info("DONE {}", product);
+			}
+			if (success) {
 				JOptionPane.showMessageDialog(panelMain, "Done!");
-			} catch (Exception e) {
-				LOG.error("Error when submitting", e);
-				JOptionPane.showMessageDialog(panelMain, e, "Error! Please check log for more details!", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
