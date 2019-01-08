@@ -225,6 +225,7 @@ public class MerchForm {
 				LOG.info("DONE {}", product);
 			}
 			if (success) {
+				webDriver.get("https://merch.amazon.com/manage/products");
 				JOptionPane.showMessageDialog(panelMain, "Done!");
 			}
 		}

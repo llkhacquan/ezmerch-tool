@@ -196,24 +196,6 @@ final class Auto {
 			LOG.info("Submitted");
 			checkSignIn(driver, password, url -> url.endsWith(PAGE_3));
 		}
-		{
-			WebElement element = driver.findElement(By.id("data-shirt-configurations-is-discoverable-accordion"))
-					.findElement(By.className("a-icon-radio-inactive"));
-			element.click();
-			LOG.info("Select draft option");
-			Thread.sleep(1000);
-		}
-		{
-			for (WebElement element : driver.findElements(By.className("a-button-inner"))) {
-				if (element.getText().equalsIgnoreCase("Save product")) {
-					Preconditions.checkArgument(element.isEnabled());
-					element.click();
-					LOG.info("Clicked save product");
-					break;
-				}
-			}
-			checkSignIn(driver, password, url -> url.equals("https://merch.amazon.com/manage/products"));
-		}
 	}
 
 	private static void waitForSubmitButton(WebElement submit) throws InterruptedException {
