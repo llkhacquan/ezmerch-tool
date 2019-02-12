@@ -1,6 +1,7 @@
 package org.openqa.selenium.amazon.merch.auto;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -63,26 +64,26 @@ final class Auto {
 				LOG.info("Submit file {}", product.getPathToFront());
 				waitForSubmitButton(submit);
 			} else if (product.getProductType() == Product.ProductType.PULLOVER_HOODIE) {
-				if (product.getPathToFront() != null && product.getPathToFront().length() > 0) {
+				if (StringUtils.isNotBlank(product.getPathToFront())) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(2);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
 					waitForSubmitButton(submit);
 				}
-				if (product.getPathToBack() != null && product.getPathToBack().length() > 0) {
+				if (StringUtils.isNotBlank(product.getPathToBack())) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(3);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
 					waitForSubmitButton(submit);
 				}
 			} else {
-				if (product.getPathToFront() != null && product.getPathToFront().length() > 0) {
+				if (StringUtils.isNotBlank(product.getPathToFront())) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(0);
 					element.sendKeys(product.getPathToFront());
 					LOG.info("Submit file {}", product.getPathToFront());
 					waitForSubmitButton(submit);
 				}
-				if (product.getPathToBack() != null && product.getPathToBack().length() > 0) {
+				if (StringUtils.isNotBlank(product.getPathToBack())) {
 					WebElement element = driver.findElements(By.xpath("//input[@type='file']")).get(1);
 					element.sendKeys(product.getPathToBack());
 					LOG.info("Submit file {}", product.getPathToBack());
