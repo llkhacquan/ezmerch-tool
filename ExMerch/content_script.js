@@ -21,8 +21,8 @@ var outerHTMLForCustomFilter = '<div class="a-column a-span2">\n' +
 var outerHTML2 =
   '<div class="a-column a-span4 a-span-last" data-reactid=".0.1.0.0.3.1">' +
   '<span class="a-button a-button-primary" data-reactid=".0.1.0.0.3.1.0">' + '<span class="a-button-inner" data-reactid=".0.1.0.0.3.1.0.0">' + '<button class="a-button-text" type="button" data-reactid=".0.1.0.0.3.1.0.0.0">Add a new product</button></span></span>' +
-  '<span class="a-button a-button-primary edit-all-button"><span class="a-button-inner"><button class="a-button-text" type="button" onclick="clickAllEdit()">Edit all</button></span></span>' +
-  '<span class="a-button a-button-primary submit-all-button"><span class="a-button-inner"><button class="a-button-text" type="button" onclick="clickAllSubmit()">Submit all</button></span></span>' +
+  '<span class="a-button a-button-primary edit-all-button"><span class="a-button-inner"><button class="a-button-text" id="editAllBtn" type="button">Edit all</button></span></span>' +
+  '<span class="a-button a-button-primary submit-all-button"><span class="a-button-inner"><button class="a-button-text" id="submitAllBtn" type="button">Submit all</button></span></span>' +
   '</div>';
 
 function clickAllEdit() {
@@ -36,6 +36,7 @@ function clickAllEdit() {
     elements = Array.from(document.querySelectorAll(temp));
   }
   for (let element of elements) {
+    console.log('click', element);
     element.click();
   }
 }
@@ -50,12 +51,10 @@ function clickAllSubmit() {
     elements = Array.from(document.querySelectorAll(temp));
   }
   for (let element of elements) {
+    console.log('click', element);
     element.click();
   }
 }
-
-var clickAllEditFunc = clickAllEdit;
-var clickAllSubmitFunc = clickAllSubmit;
 
 setTimeout(run, 2000);
 
@@ -73,6 +72,18 @@ function run() {
   element = Array.from(document.querySelectorAll('div[data-reactid=".0.1.0.0.5.1"]'))[0];
   if (element && element.parentElement.childNodes.length == 3) {
     element.insertAdjacentHTML('afterend', outerHTMLForCustomFilter);
+  }
+
+  element = document.getElementById('editAllBtn');
+  if (element) {
+    // console.log(element);
+    element.onclick = clickAllEdit;
+  }
+
+  element = document.getElementById('submitAllBtn');
+  if (element) {
+    // console.log(element);
+    element.onclick = clickAllSubmit;
   }
 
   let elements = Array.from(document.querySelectorAll('td'));
