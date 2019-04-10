@@ -31,9 +31,10 @@ final class Auto {
 	 * @param driver   must logged
 	 * @param product  product which will be submitted
 	 * @param password optional password
+	 * @param publish
 	 * @return true if everything is ok
 	 */
-	static void createNewProduct(WebDriver driver, Product product, String password) throws InterruptedException {
+	static void createNewProduct(WebDriver driver, Product product, String password, boolean publish) throws InterruptedException {
 		Preconditions.checkNotNull(driver);
 		Preconditions.checkNotNull(product);
 		Actions actions = new Actions(driver);
@@ -143,7 +144,7 @@ final class Auto {
 			WebElement element = driver.findElement(By.id("data-draft-list-prices-marketplace-amount"));
 			element.clear();
 			element.sendKeys(String.valueOf(product.getListPrice()));
-			LOG.info("Set list prices:", product.getListPrice());
+			LOG.info("Set list prices: {}", product.getListPrice());
 		}
 		{
 			WebElement submit = driver.findElement(By.id("save-and-continue-choose-variations-announce"));
@@ -158,36 +159,40 @@ final class Auto {
 			if (product.getBrandName() != null) {
 				element.clear();
 				element.sendKeys(product.getBrandName());
-				LOG.info("Set brand name:", product.getBrandName());
+				LOG.info("Set brand name: {}", product.getBrandName());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-name");
 			if (product.getTitleOfProduct() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getTitleOfProduct());
-				LOG.info("Set product title", product.getTitleOfProduct());
+				LOG.info("Set product title: {}", product.getTitleOfProduct());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-bullet-points-bullet1");
 			if (product.getKeyFeature1() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getKeyFeature1());
-				LOG.info("Set key feature 1", product.getKeyFeature1());
+				LOG.info("Set key feature 1: {}", product.getKeyFeature1());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-bullet-points-bullet2");
 			if (product.getKeyFeature2() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getKeyFeature2());
-				LOG.info("Set key feature 2", product.getKeyFeature2());
+				LOG.info("Set key feature 2: {}", product.getKeyFeature2());
 			}
 
 			element = findByIdWithCustomLang(driver, "data-draft-description");
 			if (product.getProductDescription() != null) {
 				Objects.requireNonNull(element).clear();
 				element.sendKeys(product.getProductDescription());
-				LOG.info("Set product description", product.getProductDescription());
+				LOG.info("Set product description: {}", product.getProductDescription());
 			}
+		}
+
+		if (publish) {
+			//  TODO implement here
 		}
 
 		{

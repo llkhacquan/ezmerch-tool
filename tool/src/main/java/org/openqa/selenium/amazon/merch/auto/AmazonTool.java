@@ -7,9 +7,6 @@ import org.apache.commons.codec.binary.Base32;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +63,7 @@ public class AmazonTool {
 		final WebDriver driver = getWebDriver(args[0]);
 		try {
 			for (Product product : products) {
-				Auto.createNewProduct(driver, product, "ngaothe78");
+				Auto.createNewProduct(driver, product, "ngaothe78", false);
 			}
 		} catch (InterruptedException e) {
 			LOG.error("Exception when submitting", e);

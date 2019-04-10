@@ -42,6 +42,7 @@ public class MerchForm {
 	private JButton browseDataButton;
 	private JButton submitButton;
 	private JButton deleteButton;
+	private JButton submit2Button;
 	private volatile WebDriver webDriver = null;
 
 	private MerchForm() {
@@ -118,7 +119,15 @@ public class MerchForm {
 			if (products.size() == 0) {
 				JOptionPane.showMessageDialog(panelMain, "There is no product to summit");
 			} else {
-				Thread thread = new Thread(this::submit);
+				Thread thread = new Thread(() -> submit(false));
+				thread.start();
+			}
+		});
+		submitButton.addActionListener(actionEvent -> {
+			if (products.size() == 0) {
+				JOptionPane.showMessageDialog(panelMain, "There is no product to summit");
+			} else {
+				Thread thread = new Thread(() -> submit(true));
 				thread.start();
 			}
 		});
@@ -195,7 +204,7 @@ public class MerchForm {
 		PropertyConfigurator.configure(props);
 	}
 
-	private void submit() {
+	private void submit(boolean publish) {
 		Preconditions.checkState(products.size() > 0);
 		int confirmResult = JOptionPane.showConfirmDialog(panelMain, "We are submitting " + products.size() + " product. Please confirm to process...");
 		if (confirmResult == JOptionPane.OK_OPTION) {
@@ -208,13 +217,13 @@ public class MerchForm {
 				productList.setSelectedIndex(i);
 				LOG.info("START {}", product);
 				try {
-					Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
+					Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()), publish);
 				} catch (Exception e) {
 					LOG.error("Error when submitting. Will try again", e);
 					LOG.info("TRY-AGAIN {}", product);
 					try {
 						Thread.sleep(1000);
-						Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()));
+						Auto.createNewProduct(webDriver, product, new String(passwordField.getPassword()), publish);
 					} catch (Exception e1) {
 						LOG.error("Error 2nd time when submitting", e);
 						JOptionPane.showMessageDialog(panelMain, e.getMessage(), "Error 2 times when submitting " + products.get(i), JOptionPane.ERROR_MESSAGE);
