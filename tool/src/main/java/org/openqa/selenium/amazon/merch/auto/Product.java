@@ -74,6 +74,9 @@ public final class Product {
 
 	static Product parseFromJson(File file) throws IOException {
 		String json = new String(Files.readAllBytes(file.toPath()));
+		if (json.charAt(0) != '{') {
+			json = json.substring(1);
+		}
 		JSONObject obj = new JSONObject(json);
 		System.out.println(obj);
 		obj.keys().forEachRemaining(s -> System.out.println(s + " " + obj.get(s)));
