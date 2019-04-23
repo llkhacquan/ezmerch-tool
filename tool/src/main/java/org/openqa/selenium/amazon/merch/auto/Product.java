@@ -1,6 +1,7 @@
 package org.openqa.selenium.amazon.merch.auto;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONArray;
@@ -35,14 +36,21 @@ public final class Product {
 	private final String keyFeature1;
 	private final String keyFeature2;
 	private final String productDescription;
+
 	private Product(File jsonFile, String pathToFront, String pathToBack, ProductType productType, MarketPlace marketPlace, boolean fitTypeMen, boolean fitTypeWomen, boolean fitTypeYouth, Color[] color, double listPrice,
-	                String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
+					String brandName, String titleOfProduct, String keyFeature1, String keyFeature2, String productDescription) {
 		Preconditions.checkNotNull(brandName);
 		Preconditions.checkNotNull(titleOfProduct);
 		Preconditions.checkNotNull(keyFeature1);
 		Preconditions.checkNotNull(keyFeature2);
 		Preconditions.checkNotNull(productDescription);
 		Preconditions.checkArgument(pathToFront != null || pathToBack != null, "You must provide front or back");
+		if (StringUtils.isNotBlank(pathToBack)) {
+			Preconditions.checkArgument(new File(pathToBack).isFile(), pathToBack + " is not found");
+		}
+		if (StringUtils.isNotBlank(pathToFront)) {
+			Preconditions.checkArgument(new File(pathToFront).isFile(), pathToFront + " is not found");
+		}
 		this.jsonFile = jsonFile;
 		this.pathToFront = pathToFront;
 		this.pathToBack = pathToBack;
@@ -83,14 +91,8 @@ public final class Product {
 		ProductType productType = ProductType.values()[obj.getInt("productType") - 1];
 		MarketPlace marketPlace = MarketPlace.valueOf(obj.getString("marketplace").replaceAll("\\.", "_").toUpperCase());
 		double listPrice = obj.getDouble("listPrice");
-		String front = file.getParentFile().toPath().resolve(obj.getString("front")).toString();
-		if (!new File(front).isFile()) {
-			front = null;
-		}
-		String back = file.getParentFile().toPath().resolve(obj.getString("back")).toString();
-		if (!new File(back).isFile()) {
-			back = null;
-		}
+		String front = StringUtils.isBlank(obj.getString("front")) ? null : file.getParentFile().toPath().resolve(obj.getString("front")).toString();
+		String back = StringUtils.isBlank(obj.getString("back")) ? null : file.getParentFile().toPath().resolve(obj.getString("back")).toString();
 		boolean[] fitTypeResult = new boolean[3];
 		{
 			final JSONArray fitType = obj.getJSONArray("fitType");
